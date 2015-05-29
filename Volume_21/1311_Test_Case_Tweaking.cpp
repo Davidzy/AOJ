@@ -33,80 +33,42 @@ static const int ty[] = {-1,0,1,0};
 
 struct State {
   int point;
-  vector<int> cost_log;
-  State(int p) : point(p) {}
-  State(int p,const vector<int>& cl)
-    : point(p), cost_log(cl) {}
+  int total_cost;
+  int cost2zero_times;
+  State(int p) : point(p),total_cost(0),cost2zero_times(0) {}
+  State(int p,int tc,int cz)
+    : point(p), total_cost(tc),cost2zero_times(cz) {}
+  bool operator<(const State& s) const{
+    return cost2zero_times < s.cost2zero_times;
+  }
+  bool operator>(const State& s) const{
+    return cost2zero_times > s.cost2zero_times;
+  }
 };
 
-bool visited[101];
-
-int dfs(const vector<P> edges[101],int num_of_nodes,int target_cost,
-	int point,vector<int> current_cost){
-
-  if(point == num_of_nodes - 1){
-    sort(current_cost.begin(),current_cost.end(),greater<int>());
-    int sum = 0;
-    for(int i = 0; i < current_cost.size(); i++){
-      sum += current_cost[i];
-    }
-    int ans = 0;
-    for(int i = 0; i < current_cost.size(); i++){
-      sum -= current_cost[i];
-      ans++;
-      if(sum <= target_cost){
-	break;
-      }
-    }
-    return ans;
-  }
-
-  int res = INF;
-  for(int edge_i = 0; edge_i < edges[point].size(); edge_i++){
-    int next = edges[point][edge_i].first;
-    int cost = edges[point][edge_i].second;
-    if(visited[next]) continue;
-
-    current_cost.push_back(cost);
-    visited[next] = true;
-    res = min(res,dfs(edges,num_of_nodes,target_cost,next,current_cost));
-    visited[next] = false;
-    current_cost.pop_back();
-  }
-  return res;
-}
+int dp[101][1001];
 
 int bfs(const vector<P> edges[101],int num_of_nodes,int target_cost){
   int res = INF;
-  queue<State> que;
+  priority_queue<State,vector<State>,greater<State> > que;
   que.push(State(0));
   while(!que.empty()){
-    State s = que.front();
+    State s = que.top();
+    if(s.point == num_of_nodes - 1 && dp[s.point][s.cost2zero_times] <= target_cost){
+      return s.cost2zero_times;
+    }
     que.pop();
     for(int edge_i = 0; edge_i < edges[s.point].size(); edge_i++){
       int next = edges[s.point][edge_i].first;
       int cost = edges[s.point][edge_i].second;
-      vector<int> next_cost = s.cost_log;
-      next_cost.push_back(cost);
-
-      if(next == num_of_nodes - 1){
-	sort(next_cost.begin(),next_cost.end(),greater<int>());
-	int sum = 0;
-	for(int i = 0; i < next_cost.size(); i++){
-	  sum += next_cost[i];
-	}
-	int ans = 0;
-	for(int i = 0; i < next_cost.size(); i++){
-	  sum -= next_cost[i];
-	  ans++;
-	  if(sum <= target_cost){
-	    res = min(ans,res);
-	    break;
-	  }
-	}
-	continue;
+      if(dp[next][s.cost2zero_times] > s.total_cost + cost){
+	dp[next][s.cost2zero_times] = s.total_cost + cost;
+	que.push(State(next,s.total_cost + cost,s.cost2zero_times));
       }
-      que.push(State(next,next_cost));
+      if(dp[next][s.cost2zero_times + 1] > s.total_cost){
+	dp[next][s.cost2zero_times + 1] = s.total_cost;
+	que.push(State(next,s.total_cost,s.cost2zero_times + 1));
+      }
     }
   }
   return res;
@@ -123,7 +85,7 @@ int main(){
     if(num_of_nodes == 0 && num_of_edges == 0 && target_cost == 0){
       break;
     }
-    memset(visited,false,sizeof(visited));
+    memset(dp,0x3f,sizeof(dp));
     vector<P> edges[101];
     for(int edge_i = 0; edge_i < num_of_edges; edge_i++){
       int src,dst,cost;
@@ -132,7 +94,7 @@ int main(){
       edges[src].push_back(P(dst,cost));
     }
     vector<int> current_cost;
-    visited[0] = true;
-    printf("%d\n",dfs(edges,num_of_nodes,target_cost,0,current_cost));
+    dp[0][0] = 0;
+    printf("%d\n",bfs(edges,num_of_nodes,target_cost));
   }
 }
