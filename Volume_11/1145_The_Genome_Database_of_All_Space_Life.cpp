@@ -40,7 +40,7 @@ struct State {
     : pos(pos), int_result(int_result) {}
 };
 
-// EXPR ::= NUMBERS ( EXPR ) | ALPHAS
+// EXPR ::= NUMBERS ( EXPR ) | NUMBERS ALPHA | ALPHAS
 
 State alphas(const string& str,int pos){
   string tmp = "";
@@ -72,9 +72,9 @@ State expr(const string& str,int pos){
       State s2 = expr(str,pos);
       
       string tmp = "";
-      cout << s1.int_result << endl;
       for(int i = 0; i < s1.int_result; i++){
 	tmp += s2.str_result;
+	if(tmp.size() > 1000000) break;
       }
       result += tmp;
       pos = s2.pos + 1;
@@ -93,6 +93,13 @@ int main(){
   string genome;
   int pos;
   while(cin >> genome >> pos){
-    cout << expr(genome,0).str_result << endl;
+    if(genome == "0" && pos == 0) break;
+    string result = expr(genome,0).str_result;
+    if(pos < result.size()){
+      cout << result[pos] << endl;      
+    }
+    else{
+      cout << 0 << endl;
+    }
   }
 }
