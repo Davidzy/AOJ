@@ -52,28 +52,40 @@ State alphas(const string& str,int pos){
 }
 
 State numbers(const string& str,int pos){
-  stringstream ss;
+  int tmp = 0;
   while(isdigit(str[pos])){
-    ss << str[pos];
+    tmp += (str[pos] - '0');
+    tmp *= 10;
     pos++;
   }
-  return State(pos,atoi(ss.str().c_str()));
+  tmp /= 10;
+  return State(pos,tmp);
 }
 
 State expr(const string& str,int pos){
-  if(isdigit(str[pos])){
-    State s1 = numbers(str,pos);
-    State s2 = expr(str,s1.pos + 1);
-
-    string tmp = "";
-    for(int i = 0; i < s1.int_result; i++){
-      tmp += s2.str_result;
+  string result = "";
+  while(pos < str.size() && (isdigit(str[pos]) || isalpha(str[pos]))){
+    if(isdigit(str[pos])){
+      State s1 = numbers(str,pos);
+      pos = s1.pos;
+      if(str[s1.pos] == '(') pos++;
+      State s2 = expr(str,pos);
+      
+      string tmp = "";
+      cout << s1.int_result << endl;
+      for(int i = 0; i < s1.int_result; i++){
+	tmp += s2.str_result;
+      }
+      result += tmp;
+      pos = s2.pos + 1;
     }
-    return State(s2.pos,tmp);
+    else if(isalpha(str[pos])){
+      State s1 = alphas(str,pos);
+      result += s1.str_result;
+      pos = s1.pos;
+    }
   }
-  else{
-    return alphas(str,pos);
-  }
+  return State(pos,result);
 }
 
 
