@@ -44,7 +44,7 @@ struct State {
 
 State alphas(const string& str,int pos){
   string tmp = "";
-  while(isalpha(str[pos])){
+  while(pos < str.size() && isalpha(str[pos])){
     tmp.push_back(str[pos]);
     pos++;
   }
@@ -53,7 +53,7 @@ State alphas(const string& str,int pos){
 
 State numbers(const string& str,int pos){
   int tmp = 0;
-  while(isdigit(str[pos])){
+  while(pos < str.size() && isdigit(str[pos])){
     tmp += (str[pos] - '0');
     tmp *= 10;
     pos++;
@@ -68,16 +68,27 @@ State expr(const string& str,int pos){
     if(isdigit(str[pos])){
       State s1 = numbers(str,pos);
       pos = s1.pos;
-      if(str[s1.pos] == '(') pos++;
-      State s2 = expr(str,pos);
-      
-      string tmp = "";
-      for(int i = 0; i < s1.int_result; i++){
-	tmp += s2.str_result;
-	if(tmp.size() > 1000000) break;
+      if(str[pos] == '('){
+	pos++;
+	State s2 = expr(str,pos);
+	string tmp = "";
+	for(int i = 0; i < s1.int_result; i++){
+	  tmp += s2.str_result;
+	  if(tmp.size() > 1000000) break;
+	}
+	result += tmp;
+	pos = s2.pos + 1;
       }
-      result += tmp;
-      pos = s2.pos + 1;
+      else{
+	State s2 = alphas(str,pos);
+	string tmp = "";
+	for(int i = 0; i < s1.int_result; i++){
+	  tmp += s2.str_result;
+	  if(tmp.size() > 1000000) break;
+	}
+	result += tmp;
+	pos = s2.pos;
+      }
     }
     else if(isalpha(str[pos])){
       State s1 = alphas(str,pos);
