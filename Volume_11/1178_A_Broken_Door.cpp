@@ -29,7 +29,60 @@ int tx[] = {0,1,0,-1};
 int ty[] = {-1,0,1,0};
  
 static const double EPS = 1e-8;
-int edges[51][51][51][51];
+
+class State {
+public:
+  int x;
+  int y;
+  int cost;
+  State(int x,int y,int cost)
+    : x(x), y(y), cost(cost) {}
+  bool operator<(const State& s) const {
+    return cost < s.cost;
+  }
+  bool operator>(const State& s) const {
+    return cost > s.cost;
+  }
+};
+
+bool doors[51][51][51][51];
+int state_cost[51][51][4];
+int dp[51][51];
+
+void compute_state_cost(int H,int W){
+
+  memset(state_cost,0x3f,sizeof(state_cost));
+
+  for(int sy = 0; sy < H; sy++){
+    for(int sx = 0; sx < W; sx++){
+      for(int dir = 0; dir < 4; dir++){
+	int tmp_state_cost[51][51];
+	memset(tmp_state_cost,0x3f,sizeof(tmp_state_cost));
+	priority_queue<State> que;
+	que.push(State(sx,sy,0));
+
+	while(!que.empty()){
+	  State s = que.top();
+	  que.pop();
+	  
+	  for(int i = 0; i < 4; i++){
+	    int dx = tx[i] + s.x;
+	    int dy = ty[i] + s.y;
+	    if(dx >= W || dy >= H || dx < 0 || dy < 0) continue;
+	    if(doors[s.y][s.x][dy][dx]) continue;
+	    if(dx == sx && dy == sy && dir == i) continue;
+	    if(tmp_state_cost[dy][dx] <= s.cost + 1) continue;
+	    tmp_state_cost[dy][dx] = s.cost + 1;
+	    que.push(State(dx,dy,s.cost + 1));
+	  }
+	}
+
+	state_cost[sy][sx][dir] = tmp_state_cost[H-1][W-1];
+      }
+    }
+  } 
+
+}
 
 int main(){
   int H,W;
@@ -55,27 +108,19 @@ int main(){
 	int from_x = (pos - 1)- accumulate[depth - 1];
 	int to_y = depth/2;
 	int to_x = (pos - 1) - accumulate[depth - 1] + 1;
-	edges[from_y][from_x][to_y][to_x] = flag;
-	edges[to_y][to_x][from_y][from_x] = flag;
+	doors[from_y][from_x][to_y][to_x] = (bool)flag;
+	doors[to_y][to_x][from_y][from_x] = (bool)flag;
       }
       else{
 	int from_y = depth/2;
 	int from_x = (pos - 1) - accumulate[depth - 1];
 	int to_y = depth/2 + 1;
 	int to_x = (pos - 1) - accumulate[depth - 1];
-	edges[from_y][from_x][to_y][to_x] = flag;
-	edges[to_y][to_x][from_y][from_x] = flag;
+	doors[from_y][from_x][to_y][to_x] = (bool)flag;
+	doors[to_y][to_x][from_y][from_x] = (bool)flag;
       }
     }
 
-    for(int sy = 0; sy < 5; sy++){
-      for(int sx = 0; sx < 5; sx++){
-	for(int gy = 0; gy < 5; gy++){
-	  for(int gx = 0; gx < 5; gx++){
-	    printf("(%d %d) -> (%d %d) %d\n",sx,sy,gx,gy,edges[sy][sx][gy][gx]);
-	  }
-	}
-      }
-    }
+    compute_state_cost(H,W);
   }
 }
