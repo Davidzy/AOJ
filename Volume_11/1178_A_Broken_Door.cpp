@@ -69,7 +69,7 @@ void compute_mid2goal_cost(int H,int W){
 	    int dy = ty[i] + s.y;
 	    if(dx >= W || dy >= H || dx < 0 || dy < 0) continue;
 	    if(walls[s.y][s.x][dy][dx]) continue;
-	    if(!walls[s.y][s.x][dy][dx] && dx == sx && dy == sy && dir == i) continue;
+	    if(s.x == sx && s.y == sy && dir == i) continue;
 	    if(tmp_mid2goal_cost[dy][dx] <= s.cost + 1) continue;
 	    tmp_mid2goal_cost[dy][dx] = s.cost + 1;
 	    que.push(State(dx,dy,s.cost + 1));
@@ -132,47 +132,35 @@ int main(){
     memset(walls,false,sizeof(walls));
 
     int patterns[] = {W - 1, W};
-    int accumulate[41] = {};
-    accumulate[0] = patterns[0];
-    for(int i = 1; i <= 40; i++){
-      accumulate[i] = patterns[i % 2] + accumulate[i - 1];
+    int accumulate[61] = {};
+    for(int i = 0; i < 60; i++){
+      accumulate[i + 1] = patterns[i % 2] + accumulate[i];
     }
 
     int pos = 0;
     while(pos < ((H - 1) * W) + (H * (W - 1))){
       int flag;
       scanf("%d",&flag);
-      pos++;
-      int depth = (lower_bound(accumulate,accumulate + 41,pos) - accumulate);
-      int type = depth % 2;
+      int depth = (lower_bound(accumulate,accumulate + 61,pos+1) - accumulate);
+      int type = (depth-1) % 2;
       if(type == 0){
-	int from_y = depth/2;
-	int from_x = (pos - 1) - accumulate[depth - 1];
-	int to_y = depth/2;
-	int to_x = (pos - 1) - accumulate[depth - 1] + 1;
+	int from_y = (depth - 1)/2;
+	int from_x = pos - accumulate[depth - 1];
+	int to_y = (depth - 1)/2;
+	int to_x = pos - accumulate[depth - 1] + 1;
 	walls[from_y][from_x][to_y][to_x] = (flag == 1 ? true : false);
 	walls[to_y][to_x][from_y][from_x] = (flag == 1 ? true : false);
       }
       else{
-	int from_y = depth/2;
-	int from_x = (pos - 1) - accumulate[depth - 1];
-	int to_y = depth/2 + 1;
-	int to_x = (pos - 1) - accumulate[depth - 1];
+	int from_y = (depth-1)/2;
+	int from_x = pos - accumulate[depth - 1];
+	int to_y = (depth-1)/2 + 1;
+	int to_x = pos - accumulate[depth - 1];
 	walls[from_y][from_x][to_y][to_x] = (flag == 1 ? true : false);
 	walls[to_y][to_x][from_y][from_x] = (flag == 1 ? true : false);
       }
+      pos++;
     }
-    
-    // for(int sy = 0; sy < 3; sy++){
-    //   for(int sx = 0; sx < 3; sx++){
-    // 	for(int gy = 0; gy < 3; gy++){
-    // 	  for(int gx = 0; gx < 3; gx++){
-    // 	    printf("%d %d %d %d %s\n",sx,sy,gx,gy,walls[sy][sx][gy][gx] ? "on" : "off");
-    // 	  }
-    // 	}
-    //   }
-    // }
-
     printf("%d\n",compute_start2goal_cost(H,W));
   }
 }
