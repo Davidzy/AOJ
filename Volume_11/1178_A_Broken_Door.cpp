@@ -83,15 +83,15 @@ void compute_mid2goal_cost(int H,int W){
 }
 
 
-int compute_start2goal_cost(int H,int W){
+int compute_goal2start_cost(int H,int W){
   compute_mid2goal_cost(H,W);
 
-  int start2mid_cost[51][51];
-  memset(start2mid_cost,0x3f,sizeof(start2mid_cost));
+  int goal2start_cost[51][51];
+  memset(goal2start_cost,0x3f,sizeof(goal2start_cost));
 
   priority_queue<State,vector<State>,greater<State> > que;
-  que.push(State(0,0,0));
-  start2mid_cost[0][0] = 0;
+  que.push(State(W-1,H-1,0));
+  goal2start_cost[H-1][W-1] = 0;
   while(!que.empty()){
     State s = que.top();
     que.pop();
@@ -100,28 +100,14 @@ int compute_start2goal_cost(int H,int W){
       int dy = ty[i] + s.y;
       if(dx >= W || dy >= H || dx < 0 || dy < 0) continue;
       if(walls[s.y][s.x][dy][dx]) continue;
-      if(start2mid_cost[dy][dx] <= s.cost + 1) continue;
-      start2mid_cost[dy][dx] = s.cost + 1;
-      que.push(State(dx,dy,s.cost + 1));
+
+      int next_cost = max(s.cost + 1,mid2goal_cost[dy][dx][(i+2)%4]);
+      if(goal2start_cost[dy][dx] <= next_cost) continue;
+      goal2start_cost[dy][dx] = next_cost;
+      que.push(State(dx,dy,next_cost));
     }
   }
-  
-  bool isok = true;
-  int min_cost = INF;
-  for(int sy = 0; sy < H; sy++){
-    for(int sx = 0; sx < W; sx++){
-      for(int i = 0; i < 4; i++){
-	int dx = tx[i] + sx;
-	int dy = ty[i] + sy;
-	if(dx >= W || dy >= H || dx < 0 || dy < 0) continue;
-	if(walls[sy][sx][dy][dx]) continue;
-	int cost = start2mid_cost[sy][sx] + mid2goal_cost[sy][sx][i];
-	min_cost = min(cost,min_cost);
-	if(cost >= INF) isok = false;
-      }
-    }
-  }
-  return (isok ? min_cost + 2 : -1);
+  return (goal2start_cost[0][0] >= INF ? -1 : goal2start_cost[0][0]);
 }
 
 int main(){
@@ -161,6 +147,6 @@ int main(){
       }
       pos++;
     }
-    printf("%d\n",compute_start2goal_cost(H,W));
+    printf("%d\n",compute_goal2start_cost(H,W));
   }
 }
