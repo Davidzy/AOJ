@@ -39,6 +39,30 @@ int main(){
 	       &stand_duration,
 	       &sleep_duration,
 	       &cost)){
-    
+    int current = 0;
+    int res = -1;
+
+    int count = 0;
+    for(int round = 0; round < 100000 + cost; round++){
+      int prev = current;
+
+      current += stand_duration;
+
+      for(int time = prev; time <= current; time++){
+	if(time == cost){
+	  res = count * 60 + cost;
+	  goto found;
+	}
+      }
+
+      current += sleep_duration;
+      if(current >= 60){
+	count++;
+	current -= 60;
+      }
+    }
+
+  found:;
+    printf("%d\n",res);
   }
 }
