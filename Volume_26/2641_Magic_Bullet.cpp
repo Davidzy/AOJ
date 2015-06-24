@@ -155,26 +155,25 @@ double distancePP(const Point& s,const Point& t) {
   return abs(Point(s.x - t.x,s.y - t.y,s.z - t.z));
 }
 
-vector<Point> crosspointLC(const Line& l,const Circle& ci){
-  Point dir = unit(l[1] - l[0]);
+bool hasCrosspointLC(const Line& l,const Circle& ci){
+  Point dir = l[1] - l[0];
   // a * t^2 + b * t + c = 0
   double a = norm(dir);
   double b = dot(l[0] - ci.p,dir);
   double c = norm(l[0] - ci.p) - ci.r * ci.r;
   double D = b * b - a * c;
 
-  vector<Point> res;
-  if(D < 0) return res;
+  if(D < -EPS) return false;
   double t1 = (-b - sqrt(D))/a;
   double t2 = (-b + sqrt(D))/a;
 
-  if(abs(t1) < abs(t2)){
-    res.push_back(l[0] + dir * t1);
+  if(0 < t1 && t1 < 1){
+    return true;
   }
-  else{
-    res.push_back(l[0] + dir * t2);
+  if(0 < t2 && t2 < 1){
+    return true;
   }
-  return res;
+  return false;
 }
 
 Point reflection(const Line& l,const Point& p){
@@ -188,12 +187,12 @@ int main(){
 	       &num_of_obstacles,
 	       &num_of_objects)){
     vector<Circle> obstacles;
-    vector<int> costs;
+    vector<ll> costs;
     for(int obstacle_i = 0; obstacle_i < num_of_obstacles; obstacle_i++){
       int x,y,z;
       int radius;
-      int amount_of_consumption;
-      scanf("%d %d %d %d %d",&x,&y,&z,&radius,&amount_of_consumption);
+      ll amount_of_consumption;
+      scanf("%d %d %d %d %lld",&x,&y,&z,&radius,&amount_of_consumption);
       obstacles.push_back(Circle(Point(x,y,z),radius));
       costs.push_back(amount_of_consumption);
     }
@@ -205,12 +204,13 @@ int main(){
 	    &blue_x,&blue_y,&blue_z);
       Line line(Point(red_x,red_y,red_z),Point(blue_x,blue_y,blue_z));
 
-      int sum = 0;
+      ll sum = 0;
       for(int obstacle_i = 0; obstacle_i < num_of_obstacles; obstacle_i++){
-	vector<Point> p = crosspointLC(line,obstacles[obstacle_i]);
-	if(p.size() > 0) sum += costs[obstacle_i];
+	if(hasCrosspointLC(line,obstacles[obstacle_i])){
+	  sum += costs[obstacle_i];
+	}
       }
-      printf("%d\n",sum);
+      printf("%lld\n",sum);
     }
   }
 }
