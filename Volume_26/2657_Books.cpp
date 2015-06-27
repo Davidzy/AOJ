@@ -37,7 +37,7 @@ private:
   string author;
   string date;
 
-  int date2sec(string date){
+  int date2day(string date){
     vector<string> elements;
     string tmp = "";
     for(int i = 0; i < date.size(); i++){
@@ -51,8 +51,8 @@ private:
     elements.push_back(tmp);
     
     return 365 * (atoi(elements[0].c_str()) - 1970)
-      + atoi(elements[1].c_str()) * 31
-      + atoi(elements[2].c_str());
+      + (atoi(elements[1].c_str()) - 1) * 31
+      + (atoi(elements[2].c_str()) - 1);
   }
 
 public:
@@ -79,9 +79,9 @@ public:
   }
 
   bool match_date(string from,string to) {
-    int my_sec = date2sec(date);
-    if(from != "*" && my_sec < date2sec(from)) return false;
-    if(to != "*" && my_sec > date2sec(to)) return false;
+    int my_sec = date2day(date);
+    if(from != "*" && my_sec < date2day(from)) return false;
+    if(to != "*" && my_sec > date2day(to)) return false;
     return true;
   }
 
@@ -111,7 +111,7 @@ int main(){
 	  cout << books[book_i].get_title() << endl;
 	}
       }
-      if(query_i != num_of_queries -1){
+      if(query_i != num_of_queries - 1){
 	cout << endl;
       }
     }
