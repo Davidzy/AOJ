@@ -31,6 +31,8 @@ static const double EPS = 1e-8;
 static const int tx[] = {0,1,0,-1};
 static const int ty[] = {-1,0,1,0};
 
+int dp[11][100010];
+
 int main(){
   int num_of_stocks;
   int period;
@@ -40,46 +42,32 @@ int main(){
 	       &period,
 	       &init_money)){
     int price[11][11];
-    map<vector<int>,int> dp[11][11];
 
     for(int day = 0; day < period; day++){
       for(int stock_i = 0; stock_i < num_of_stocks; stock_i++){
 	scanf("%d",&price[day][stock_i]);
       }
     }
-    vector<int> init_state(10);
-    dp[0][0][init_state] = init_money;
-    for(int day = 0; day < period; day++){
+    memset(dp,0,sizeof(dp));
+    for(int day = 0; day < period-1; day++){
+      for(int start_money = 0; start_money <= 100000; start_money++){
+	dp[day][start_money] = start_money;
+      }
+
       for(int stock_i = 0; stock_i < num_of_stocks; stock_i++){
-	for(map<vector<int>,int>::iterator it = dp[day][stock_i].begin(); it != dp[day][stock_i].end(); it++){
-	  vector<int> prev_state = it->first;
-	  int prev_money = it->second;
-	  dp[day][stock_i+1][prev_state] = max(prev_money,dp[day][stock_i+1][prev_state]);
-	  
-	  if(prev_state[stock_i] > 0){
-	    vector<int> next_state = prev_state;
-	    next_state[stock_i] = 0;
-	    dp[day][stock_i+1][next_state] = max(dp[day][stock_i+1][next_state],
-						 prev_money
-						 + price[day][stock_i] * prev_state[stock_i]);
-	  }
-	  for(int buy = 1; buy <= 1000000; buy++){
-	    if(prev_money - buy * price[day][stock_i] < 0) break;
-	    vector<int> next_state = prev_state;
-	    next_state[stock_i] += buy;
-	    dp[day][stock_i+1][next_state] = max(dp[day][stock_i+1][next_state],
-						 prev_money
-						 - price[day][stock_i] * buy);
-	  }
+	for(int start_money = price[day][stock_i]; start_money <= 100000; start_money++){
+	  dp[day][start_money] 
+	    = max(dp[day][start_money],
+		  dp[day][start_money - price[day][stock_i]] + price[day+1][stock_i]);
 	}
       }
-      dp[day+1][0] = dp[day][num_of_stocks];
     }
 
-    int res = 0;
-    for(map<vector<int>,int>::iterator it = dp[period][0].begin(); it != dp[period][0].end(); it++){
-      res = max(it->second,res);
+    int res = init_money;
+    for(int day = 0; day < period - 1; day++){
+      res = dp[day][res];
     }
+
     printf("%d\n",res);
   }
 }
