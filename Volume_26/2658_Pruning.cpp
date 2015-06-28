@@ -51,11 +51,31 @@ int main(){
       cicadas[vertex_i] = num_of_cicadas;
     }
 
-    vector<Edge> costs[1001];
+    vector<Edge> edges[1001];
     for(int vertex_i = 0; vertex_i < num_of_vertex - 1; vertex_i++){
       int from,to,cost;
       cin >> from >> to >> cost;
-      costs[from].push_back(Edge(to,cost));
+      edges[from].push_back(Edge(to,cost));
     }
+
+    int res = 0;
+    queue<int> que;
+    que.push(0);
+    while(!que.empty()){
+      int pos = que.front();
+      que.pop();
+      for(int next_i = 0; next_i < edges[pos].size(); next_i++){
+	int to = edges[pos][next_i].to;
+	int cost = edges[pos][next_i].cost;
+	if(cicadas[to] > 0){
+	  res += cost;
+	}
+	else {
+	  que.push(to);
+	}
+      }
+    }
+
+    printf("%d\n",res);
   }
 }
