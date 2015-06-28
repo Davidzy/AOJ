@@ -41,6 +41,17 @@ public:
   }
 };
 
+int dfs(int pos, int cost, int cicadas[1001], vector<Edge> edges[1001]){
+  int res = 0;
+  if(cicadas[pos] > 0) return cost;
+
+  for(int next_i = 0; next_i < edges[pos].size(); next_i++){
+    int to = edges[pos][next_i].to;
+    res += dfs(to,edges[pos][next_i].cost,cicadas,edges);
+  }
+  return min(res,cost);
+}
+
 int main(){
   int num_of_vertex;
   while(~scanf("%d",&num_of_vertex)){
@@ -57,25 +68,7 @@ int main(){
       cin >> from >> to >> cost;
       edges[from].push_back(Edge(to,cost));
     }
-
-    int res = 0;
-    queue<int> que;
-    que.push(0);
-    while(!que.empty()){
-      int pos = que.front();
-      que.pop();
-      for(int next_i = 0; next_i < edges[pos].size(); next_i++){
-	int to = edges[pos][next_i].to;
-	int cost = edges[pos][next_i].cost;
-	if(cicadas[to] > 0){
-	  res += cost;
-	}
-	else {
-	  que.push(to);
-	}
-      }
-    }
-
-    printf("%d\n",res);
+    
+    printf("%d\n",dfs(0,INF,cicadas,edges));
   }
 }
