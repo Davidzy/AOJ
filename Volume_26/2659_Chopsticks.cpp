@@ -88,22 +88,9 @@ int main(){
       }
 
       pair<ll,ll> ans = linear_congruence(A,reminder,divisors);
-      
-      ll upper = 1000000000LL;
-      ll lower = -1;
-      for(int round = 0; round < 100; round++){
-	ll mid = lower + (upper - lower) / 2LL;
-	if(ans.second * mid + ans.first > num_of_chopsticks){
-	  upper = mid;
-	}
-	else{
-	  lower = mid;
-	}
-      }
-      
-      num_of_chopsticks = ans.second * lower + ans.first;
-      if(lower == -1 || num_of_chopsticks < 0) {
-	num_of_chopsticks = -1;
+      num_of_chopsticks -= (num_of_chopsticks - ans.first + ans.second) % ans.second;
+      if(num_of_chopsticks < 0 || ans.second == -1){
+      	num_of_chopsticks = -1;
 	break;
       }
     }
