@@ -31,6 +31,19 @@ static const double EPS = 1e-8;
 static const int tx[] = {0,1,0,-1};
 static const int ty[] = {-1,0,1,0};
 
+P calc(int lhs,int rhs){
+  int sum = lhs + rhs;
+  int carry = 0;
+  int cost = 0;
+  for(int i = 0; i < 9; i++){
+    cost += lhs % 10 + rhs % 10 + carry;
+    carry = (lhs % 10 + rhs % 10 + carry > 10 ? 1 : 0);
+    lhs /= 10;
+    rhs /= 10;
+  }
+  return P(sum,cost);
+}
+
 int main(){
   int N;
   while(~scanf("%d",&N)){
