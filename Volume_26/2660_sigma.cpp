@@ -36,8 +36,8 @@ P calc(int lhs,int rhs){
   int carry = 0;
   int cost = 0;
   for(int i = 0; i < 9; i++){
-    cost += lhs % 10 + rhs % 10 + carry;
-    carry = (lhs % 10 + rhs % 10 + carry > 10 ? 1 : 0);
+    cost += (lhs % 10) * (rhs % 10) + carry;
+    carry = (lhs % 10 + rhs % 10 + carry >= 10 ? 1 : 0);
     lhs /= 10;
     rhs /= 10;
   }
@@ -53,5 +53,13 @@ int main(){
       scanf("%d",&number);
       numbers.push_back(number);
     }
+    sort(numbers.begin(),numbers.end(),greater<int>());
+    int res = 0;
+    for(int i = 0; i + 1 < numbers.size(); i++){
+      P tmp = calc(numbers[i],numbers[i+1]);
+      numbers[i+1] = tmp.first;
+      res += tmp.second;
+    }
+    printf("%d\n",res);
   }
 }
