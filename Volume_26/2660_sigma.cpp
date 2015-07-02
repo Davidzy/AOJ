@@ -53,13 +53,36 @@ int main(){
       scanf("%d",&number);
       numbers.push_back(number);
     }
-    sort(numbers.begin(),numbers.end(),greater<int>());
-    int res = 0;
-    for(int i = 0; i + 1 < numbers.size(); i++){
-      P tmp = calc(numbers[i],numbers[i+1]);
-      numbers[i+1] = tmp.first;
-      res += tmp.second;
+    P dp[301][301];
+    for(int y = 0; y < numbers.size(); y++){
+      for(int x = 0; x < numbers.size(); x++) {
+	dp[y][x].second = INF;
+      }
     }
-    printf("%d\n",res);
+
+    for(int i = 0; i < numbers.size(); i++) {
+      dp[i][i].first = numbers[i];
+      dp[i][i].second = 0;
+    }
+
+    for(int d = 0; d < numbers.size(); d++){
+      for(int i = 0; i < numbers.size() - d; i++){
+	int j = i + d;
+	for(int k = i; k < j; k++){
+	  P tmp = calc(dp[i][k].first,dp[k+1][j].first);
+	  dp[i][j].first = tmp.first;
+	  if(dp[i][k].second == 0 && dp[k+1][j].second == 0){
+	    dp[i][j].second = tmp.second;
+	  }
+	  else {
+	    dp[i][j].second = min(tmp.second + dp[i][k].second,
+				  tmp.second + dp[k+1][j].second);
+	  }
+	}
+      }
+    }
+
+    cout << dp[0][numbers.size()-1].second << endl;
+    // printf("%d\n",res);
   }
 }
