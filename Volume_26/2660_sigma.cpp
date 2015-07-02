@@ -59,7 +59,6 @@ int main(){
       dp[i][i].second = 0;
     }
 
-    int sum = 0;
     for(int d = 1; d < numbers.size(); d++){
       for(int i = 0; i < numbers.size() - d; i++){
 	int j = i + d;
@@ -73,6 +72,6 @@ int main(){
       }
     }
 
-    cout << dp[0][numbers.size()-1].second << endl;
+    printf("%d\n",dp[0][numbers.size()-1].second);
   }
 }
