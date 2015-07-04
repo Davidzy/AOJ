@@ -58,11 +58,11 @@ enum Type {
   SECOND = 2
 };
 
-ll digits2bar(int year,Type type){
+ll digits2bar(int digits,Type type){
   ll res = 0;
   for(int i = 0; i < type; i++){
-    res += digit2bar[year % 10];
-    year /= 10;
+    res += digit2bar[digits % 10];
+    digits /= 10;
   }
   return res;
 }
