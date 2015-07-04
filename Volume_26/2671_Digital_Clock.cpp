@@ -31,7 +31,7 @@ static const double EPS = 1e-8;
 static const int tx[] = {0,1,0,-1};
 static const int ty[] = {-1,0,1,0};
 
-int digit2bar[14][10] = 
+ll digit2bar[14][10] = 
   {
     {6,2,5,5,4,5,6,3,7,6},
     {6,2,5,5,4,5,6,3,7,6},
@@ -150,7 +150,7 @@ int main(){
     
     ll dp[7][110] = {};    
     for(int year = 0; year <= 9999; year++){
-      int days[] = {0,31,28 + is_leap_year(year) ? 1 : 0,31,30,31,30,31,31,30,31,30,31};
+      int days[] = {0,31,28 + (is_leap_year(year) ? 1 : 0),31,30,31,30,31,31,30,31,30,31};
       for(int month = 1; month <= 12; month++){
 	for(int day = 1; day <= days[month]; day++){
 	  dp[0][digits2bar(year,YEAR,3) + digits2bar(month,MONTH,5) +digits2bar(day,DAY,7)]++;
