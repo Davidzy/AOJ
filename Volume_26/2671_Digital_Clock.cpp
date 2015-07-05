@@ -118,6 +118,7 @@ int main(){
   bar_pos2digit[4].push_back(8);
 
   bar_pos2digit[5].push_back(0);
+  bar_pos2digit[5].push_back(1);
   bar_pos2digit[5].push_back(3);
   bar_pos2digit[5].push_back(4);
   bar_pos2digit[5].push_back(5);
@@ -153,7 +154,7 @@ int main(){
       int days[] = {0,31,28 + (is_leap_year(year) ? 1 : 0),31,30,31,30,31,31,30,31,30,31};
       for(int month = 1; month <= 12; month++){
 	for(int day = 1; day <= days[month]; day++){
-	  dp[0][digits2bar(year,YEAR,3) + digits2bar(month,MONTH,5) +digits2bar(day,DAY,7)]++;
+	  dp[0][digits2bar(year,YEAR,3) + digits2bar(month,MONTH,5) + digits2bar(day,DAY,7)]++;
 	}
       }
     }
