@@ -91,7 +91,7 @@ int main(){
       is_letter[from] = true;
       is_post[to] = true;
       letter2idx[from] = post_i;
-      post2idx[to] = post_i;
+      post2idx[to] = total_lost_posts +  post_i;
       post2letter[to] = from;
     }
 
