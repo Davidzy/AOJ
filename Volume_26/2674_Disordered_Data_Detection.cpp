@@ -31,6 +31,55 @@ static const double EPS = 1e-8;
 static const int tx[] = {0,1,0,-1};
 static const int ty[] = {-1,0,1,0};
 
+class SegmentTree {
+private:
+  int mSize;
+  multiset<int>* scores;
+public:
+  SegmentTree(int n) {
+    mSize = 1;
+    while(mSize < n) mSize *= 2;
+    scores = new multiset<int>[mSize];
+  }
+
+  ~SegmentTree(){
+    delete[] scores;
+  }
+
+  void insert(const vector<int>& sequence_length){
+    for(int i = mSize - 1,j=0; i < mSize * 2 + 1; i++,j++){
+      scores[i].insert(sequence_length[j]);
+    }
+    for(int tmp_idx = mSize - 1; tmp_idx < mSize * 2 + 1; tmp_idx++){
+      int idx = tmp_idx;
+      while(idx > 0){
+	cout << "hoge" << endl;
+    	idx = (idx - 1) / 2;
+    	int lhs = idx * 2 + 1;
+    	int rhs = idx * 2 + 2;
+    	for(multiset<int>::iterator it = scores[lhs].begin();
+    	    it != scores[lhs].end();
+    	    it++){
+    	  scores[idx].insert(*it);
+    	}
+    	for(multiset<int>::iterator it = scores[rhs].begin();
+    	    it != scores[rhs].end();
+    	    it++){
+    	  scores[idx].insert(*it);
+    	}
+      }
+    }
+  }
+
+  void query(int idx){
+    for(multiset<int>::iterator it = scores[idx].begin();
+	it != scores[idx].end();
+	it++){
+      cout << *it << endl;
+    }
+  }
+};
+
 int main(){
   int sequence_length;
   while(~scanf("%d",&sequence_length)){
@@ -40,6 +89,11 @@ int main(){
       scanf("%d",&x);
       sequence.push_back(x);
     }
+
+    SegmentTree seg_tree(sequence_length);
+    seg_tree.insert(sequence);
+    // seg_tree.query(0);
+
     int total_queries;
     scanf("%d",&total_queries);
     for(int query_i = 0; query_i < total_queries; query_i++){
