@@ -34,49 +34,32 @@ static const int ty[] = {-1,0,1,0};
 class SegmentTree {
 private:
   int mSize;
-  multiset<int>* scores;
+  multiset<int> scores[100001];
 public:
   SegmentTree(int n) {
     mSize = 1;
     while(mSize < n) mSize *= 2;
-    scores = new multiset<int>[mSize];
-  }
-
-  ~SegmentTree(){
-    delete[] scores;
   }
 
   void insert(const vector<int>& sequence_length){
-    for(int i = mSize - 1,j=0; i < mSize * 2 + 1; i++,j++){
+    for(int i = mSize - 1,j=0; i < mSize * 2 - 1; i++,j++){
       scores[i].insert(sequence_length[j]);
-    }
-    for(int tmp_idx = mSize - 1; tmp_idx < mSize * 2 + 1; tmp_idx++){
-      int idx = tmp_idx;
+      int idx = i;
       while(idx > 0){
-	cout << "hoge" << endl;
     	idx = (idx - 1) / 2;
-    	int lhs = idx * 2 + 1;
-    	int rhs = idx * 2 + 2;
-    	for(multiset<int>::iterator it = scores[lhs].begin();
-    	    it != scores[lhs].end();
-    	    it++){
-    	  scores[idx].insert(*it);
-    	}
-    	for(multiset<int>::iterator it = scores[rhs].begin();
-    	    it != scores[rhs].end();
-    	    it++){
-    	  scores[idx].insert(*it);
-    	}
+	scores[idx].insert(sequence_length[j]);
       }
     }
   }
 
   void query(int idx){
+    cout << "ore" << endl;
     for(multiset<int>::iterator it = scores[idx].begin();
 	it != scores[idx].end();
 	it++){
       cout << *it << endl;
     }
+    cout << "ore" << endl;
   }
 };
 
@@ -92,7 +75,7 @@ int main(){
 
     SegmentTree seg_tree(sequence_length);
     seg_tree.insert(sequence);
-    // seg_tree.query(0);
+    seg_tree.query(0);
 
     int total_queries;
     scanf("%d",&total_queries);
