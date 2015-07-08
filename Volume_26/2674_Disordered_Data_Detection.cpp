@@ -34,7 +34,7 @@ static const int ty[] = {-1,0,1,0};
 class SegmentTree {
 private:
   int mSize;
-  vector<int> scores[100001];
+  vector<int> scores[300001];
 public:
   SegmentTree(int n) {
     mSize = 1;
@@ -52,12 +52,13 @@ public:
 	score = sequence[j];
       }
       scores[i].push_back(score);
-      int idx = i;
-      while(idx > 0){
-    	idx = (idx - 1) / 2;
-	scores[idx].push_back(score);
-	sort(scores[idx].begin(),scores[idx].end());
-      }
+    }
+
+    for(int idx = mSize - 2; idx >= 0; idx--){
+      int lhs = 2 * idx + 1;
+      int rhs = 2 * idx + 2;
+      scores[idx].resize(scores[lhs].size() + scores[rhs].size());
+      merge(scores[lhs].begin(),scores[lhs].end(),scores[rhs].begin(),scores[rhs].end(),scores[idx].begin());
     }
   }
 
