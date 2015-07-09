@@ -42,5 +42,7 @@ int main(){
     scanf("%d",&y_upper_limit);
     scanf("%d",&y_additional_price);
     scanf("%d",&consumption_amount);
+    printf("%d\n",min(consumption_amount * x_price_per_liter,
+		    y_base_price + (consumption_amount <= y_upper_limit ? 0 : (consumption_amount - y_upper_limit) * y_additional_price)));
   }
 }
