@@ -32,49 +32,81 @@ static const int tx[] = {+0,+1,+1,+1,+0,-1,-1,-1};
 static const int ty[] = {-1,-1,+0,+1,+1,+1,+0,-1};
 
 char stage[1001][1001];
-char buffer[1001][1001];
+int cost[1001][1001];
+int H,W;
+
+class State {
+public:
+  int x;
+  int y;
+  int cost;
+
+  State(int x, int y, int cost){
+    this->x = x;
+    this->y = y;
+    this->cost = cost;
+  }
+
+  bool operator<(State s) const {
+    return cost < s.cost;
+  }
+
+  bool operator>(State s) const {
+    return cost > s.cost;
+  }
+};
+
+bool is_new_vacant_lot(int x, int y,int current_cost){
+  if(stage[y][x] == '.') return false;
+
+  int count = 0;
+  int strongness = stage[y][x] - '0';
+
+  for(int i = 0; i < 8; i++){
+    int dx = x + tx[i];
+    int dy = y + ty[i];
+    if(dx < 0 || dx >= W || dy < 0 || dy >= H) continue;
+    if(stage[dy][dx] == '.' && current_cost > cost[dy][dx]){
+      count++;
+    }
+  }
+  return (count >= strongness);
+}
 
 int main(){
-  int H,W;
   while(~scanf("%d %d",&H,&W)){
+    memset(cost,0x3f,sizeof(cost));
+    priority_queue<State,vector<State>,greater<State> > que;
     for(int y = 0; y < H; y++){
       char line[1001];
       scanf("%s",line);
       for(int x = 0; x < W; x++){
 	stage[y][x] = line[x];
-	buffer[y][x] = line[x];
+	if(line[x] == '.'){
+	  que.push(State(x,y,0));
+	  cost[y][x] = 0;
+	}
       }
     }
 
+
     int res = 0;
-    for(int round = 0; round < 10010; round++){
-      bool is_over = true;
-      for(int y = 0; y < H; y++){
-	for(int x = 0; x < W; x++){
-	  if(stage[y][x] == '.') continue;
-	  int strongness = stage[y][x] - '0';
+    while(!que.empty()){
+      State s = que.top();
+      que.pop();
+      res = max(s.cost,res);
 
-	  int count = 0;
-	  for(int i = 0; i < 8; i++){
-	    int dx = x + tx[i];
-	    int dy = y + ty[i];
-	    if(dx < 0 || dx >= W || dy < 0 || dy >= H) continue;
-	    if(stage[dy][dx] == '.'){
-	      count++;
-	    }
-	  }
-
-	  if(count >= strongness){
-	    is_over = false;
-	    buffer[y][x] = '.';
-	  }
-	}
+      for(int i = 0; i < 8; i++){
+	int dx = s.x + tx[i];
+	int dy = s.y + ty[i];
+	if(dx < 0 || dx >= W || dy < 0 || dy >= H) continue;
+	if(cost[dy][dx] <= s.cost + 1) continue;
+	if(!is_new_vacant_lot(dx,dy,s.cost + 1)) continue;
+	
+	stage[dy][dx] = '.';
+	cost[dy][dx] = s.cost + 1;
+	que.push(State(dx,dy,s.cost + 1));
       }
-      if(is_over){
-	res = round;
-	break;
-      }
-      memcpy(stage,buffer,sizeof(char)*1001*1001);
     }
     printf("%d\n",res);
   }
