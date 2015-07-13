@@ -67,21 +67,21 @@ int main(){
       int from = route[route_i];
       int to = route[route_i + 1];
       if(from < to){
-	for(int i = from; i < to; i++){
-	  count[i]++;
-	}
+	count[from]++;
+	count[to]--;
       }
       else{
-	for(int i = to; i < from; i++){
-	  count[i]++;
-	}
+	count[to]++;
+	count[from]--;
       }
     }
 
     ll res = 0;
+    int sum = 0;
     for(int city_i = 0; city_i < total_cities - 1; city_i++){
-      res += min(count[city_i] * cities[city_i].normal_fare,
-		 count[city_i] * cities[city_i].ic_fare + cities[city_i].ic_price);
+      sum += count[city_i];
+      res += min(sum * cities[city_i].normal_fare,
+		 sum * cities[city_i].ic_fare + cities[city_i].ic_price);
     }
     printf("%lld\n",res);
   }
