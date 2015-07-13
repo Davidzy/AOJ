@@ -55,12 +55,34 @@ int main(){
     }
     
     vector<City> cities;
-    for(int city_i = 0; city_i < total_cities; city_i++){
+    for(int city_i = 0; city_i < total_cities - 1; city_i++){
       int normal_fare;
       int ic_fare;
       int ic_price;
       scanf("%d %d %d",&normal_fare,&ic_fare,&ic_price);
       cities.push_back(City(normal_fare,ic_fare,ic_price));
     }
+    int count[100001] = {};
+    for(int route_i = 0; route_i + 1 < route.size(); route_i++){
+      int from = route[route_i];
+      int to = route[route_i + 1];
+      if(from < to){
+	for(int i = from; i < to; i++){
+	  count[i]++;
+	}
+      }
+      else{
+	for(int i = to; i < from; i++){
+	  count[i]++;
+	}
+      }
+    }
+
+    int res = 0;
+    for(int city_i = 0; city_i < total_cities - 1; city_i++){
+      res += min(count[city_i] * cities[city_i].normal_fare,
+		 count[city_i] * cities[city_i].ic_fare + cities[city_i].ic_price);
+    }
+    printf("%d\n",res);
   }
 }
