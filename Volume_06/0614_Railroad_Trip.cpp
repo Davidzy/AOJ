@@ -32,10 +32,10 @@ static const int ty[] = {-1,0,1,0};
 
 class City{
 public:
-  int normal_fare;
-  int ic_fare;
-  int ic_price;
-  City(int normal_fare,int ic_fare,int ic_price){
+  ll normal_fare;
+  ll ic_fare;
+  ll ic_price;
+  City(ll normal_fare,ll ic_fare,ll ic_price){
     this->normal_fare = normal_fare;
     this->ic_fare = ic_fare;
     this->ic_price = ic_price;
@@ -56,13 +56,13 @@ int main(){
     
     vector<City> cities;
     for(int city_i = 0; city_i < total_cities - 1; city_i++){
-      int normal_fare;
-      int ic_fare;
-      int ic_price;
-      scanf("%d %d %d",&normal_fare,&ic_fare,&ic_price);
+      ll normal_fare;
+      ll ic_fare;
+      ll ic_price;
+      scanf("%lld %lld %lld",&normal_fare,&ic_fare,&ic_price);
       cities.push_back(City(normal_fare,ic_fare,ic_price));
     }
-    int count[100001] = {};
+    ll count[100001] = {};
     for(int route_i = 0; route_i + 1 < route.size(); route_i++){
       int from = route[route_i];
       int to = route[route_i + 1];
@@ -78,11 +78,11 @@ int main(){
       }
     }
 
-    int res = 0;
+    ll res = 0;
     for(int city_i = 0; city_i < total_cities - 1; city_i++){
       res += min(count[city_i] * cities[city_i].normal_fare,
 		 count[city_i] * cities[city_i].ic_fare + cities[city_i].ic_price);
     }
-    printf("%d\n",res);
+    printf("%lld\n",res);
   }
 }
