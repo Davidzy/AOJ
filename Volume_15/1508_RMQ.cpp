@@ -42,6 +42,22 @@ public:
   }
 };
 
+struct Node {
+  int val;
+  Node* children[2];
+  double priority;
+  int sub_tree_size;
+  int sub_tree_sum;
+  Node(int val,double priority)
+    : val(val), priority(priority),sub_tree_size(1),sub_tree_sum(val){
+    children[0] = children[1] = NULL;
+  }
+};
+
+class Treap {
+  
+};
+
 int main(){
   int sequence_length;
   int total_queries;
