@@ -23,7 +23,6 @@
 using namespace std;
 
 typedef long long ll;
-typedef pair <int,int> P;
 
 static const double EPS = 1e-8;
 
@@ -59,18 +58,51 @@ public:
   Node* update(Node *current){
     current->sub_tree_size
       = compute_size(current->children[0])
-      + compute_size(current->children[1]);
+      + compute_size(current->children[1]) + 1;
     current->sub_tree_sum
       = compute_sum(current->children[0])
       + compute_sum(current->children[1]);
     return current;
   }
 private:
-  int compute_size(Node *current) const{
+  int compute_size(Node *current) {
     return (current == NULL ? 0 : current->sub_tree_size);
   }
-  int compute_sum(Node *current) const{
+  int compute_sum(Node *current) {
     return (current == NULL ? 0 : current->sub_tree_sum);
+  }
+
+  Node* merge(Node* lhs, Node* rhs) {
+    if (lhs == NULL || rhs == NULL) {
+	return (lhs == NULL ? rhs : lhs);
+    }
+
+    if (lhs->priority > rhs->priority) {
+      lhs->children[1] = merge(lhs->children[1], rhs);
+      return update(lhs);
+    } else {
+      rhs->children[0] = merge(lhs, rhs->children[0]);
+      return update(rhs);
+    }
+  }
+
+  pair<Node*, Node*> split(Node* current, int k){
+    if(current == NULL) {
+      Node* dummy = NULL;
+      return make_pair(dummy, dummy);
+    }
+    
+    if(k <= compute_size(current->children[0])){
+      pair<Node*, Node*> s = split(current->children[0], k);
+      current->children[0] = s.second;
+      return make_pair(s.first, update(current));
+    }
+    else {
+      pair<Node*, Node*> s = split(current->children[1],
+				   k - compute_size(current->children[0]) - 1);
+      current->children[1] = s.first;
+      return make_pair(update(current), s.second);
+    }
   }
 };
 
