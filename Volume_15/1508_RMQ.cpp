@@ -55,7 +55,23 @@ struct Node {
 };
 
 class Treap {
-  
+public:
+  Node* update(Node *current){
+    current->sub_tree_size
+      = compute_size(current->children[0])
+      + compute_size(current->children[1]);
+    current->sub_tree_sum
+      = compute_sum(current->children[0])
+      + compute_sum(current->children[1]);
+    return current;
+  }
+private:
+  int compute_size(Node *current) const{
+    return (current == NULL ? 0 : current->sub_tree_size);
+  }
+  int compute_sum(Node *current) const{
+    return (current == NULL ? 0 : current->sub_tree_sum);
+  }
 };
 
 int main(){
