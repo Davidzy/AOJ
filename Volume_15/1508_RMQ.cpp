@@ -64,13 +64,6 @@ public:
       + compute_sum(current->children[1]);
     return current;
   }
-private:
-  int compute_size(Node *current) {
-    return (current == NULL ? 0 : current->sub_tree_size);
-  }
-  int compute_sum(Node *current) {
-    return (current == NULL ? 0 : current->sub_tree_sum);
-  }
 
   Node* merge(Node* lhs, Node* rhs) {
     if (lhs == NULL || rhs == NULL) {
@@ -117,6 +110,14 @@ private:
     pair<Node*, Node*> lhs = split(current, k - 1);
     pair<Node*, Node*> rhs = split(lhs.second, 1);
     return merge(lhs.first, rhs.second);
+  }
+
+private:
+  int compute_size(Node *current) {
+    return (current == NULL ? 0 : current->sub_tree_size);
+  }
+  int compute_sum(Node *current) {
+    return (current == NULL ? 0 : current->sub_tree_sum);
   }
 };
 
