@@ -104,6 +104,20 @@ private:
       return make_pair(update(current), s.second);
     }
   }
+
+  Node* insert(Node* current, int k, int v){
+    pair<Node*, Node*> splitted = split(current, k);
+    double priority = (double)rand() / (double)RAND_MAX;
+    Node* solo = new Node(v, priority);
+    Node* tmp = merge(splitted.first, solo);
+    return merge(tmp, splitted.second);
+  }
+
+  Node* erase(Node* current, int k){
+    pair<Node*, Node*> lhs = split(current, k - 1);
+    pair<Node*, Node*> rhs = split(lhs.second, 1);
+    return merge(lhs.first, rhs.second);
+  }
 };
 
 int main(){
