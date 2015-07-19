@@ -139,6 +139,15 @@ private:
       return find(current->children[1], k - current_size - 1);
     }
   }
+  
+  Node* shift(Node* current, int left_i, int right_i) { // [left_i,right_i]
+    //[0,left_i-1] [right_i] [left_i+1,right_i-1] [left_i] [left_i+1,n]
+    pair<Node*, Node*> tmp_lhs = split(current, left_i + 1); // 1st:[0,left_i] 2nd:[left_i,n)
+    pair<Node*, Node*> lhs = split(tmp_lhs.first, left_i); // 1st:[0,left_i-1] 2nd:left_i
+    pair<Node*, Node*> mid = split(tmp_lhs.second, right_i); // 1st:[left_i + 1,right_i-1] 2nd:[right_i,n)
+    pair<Node*, Node*> rhs = split(mid.second, right_i + 1); // 1st:right_i 2nd:[right_i + 1,n)
+    return merge(merge(merge(merge(lhs.first,rhs.first),mid.first),lhs.second),rhs.second);
+  }
 
 public:
   Treap() {
@@ -157,6 +166,10 @@ public:
     Node* node = find(root, k);
     return node->val;
   }
+
+  void shift(int left_i, int right_i) {
+    root = shift(root, left_i, right_i);
+  }
 };
 
 int main(){
@@ -166,17 +179,14 @@ int main(){
   treap.insert(0,1);
   treap.insert(1,22);
   treap.insert(2,101010);
-  treap.insert(5,27);
+  treap.insert(3,27);
+  treap.insert(4,33);
+  treap.shift(1,3);
   cout << treap.find(0) << endl;
   cout << treap.find(1) << endl;
   cout << treap.find(2) << endl;
   cout << treap.find(3) << endl;
-  cout << "------" << endl;
-  treap.erase(3);
-  cout << treap.find(0) << endl;
-  cout << treap.find(1) << endl;
-  cout << treap.find(2) << endl;
-  cout << treap.find(3) << endl;
+  cout << treap.find(4) << endl;
 
   while(~scanf("%d %d",&sequence_length,&total_queries)){
     vector<int> sequence;
