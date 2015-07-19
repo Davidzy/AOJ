@@ -19,6 +19,7 @@
 #include <list>
 #include <cctype>
 #include <utility>
+#include <assert.h>
 
 using namespace std;
 
@@ -117,12 +118,16 @@ private:
   }
 
   Node* erase(Node* current, int k) {
-    pair<Node*, Node*> lhs = split(current, k - 1);
-    pair<Node*, Node*> rhs = split(lhs.second, k);
-    return merge(lhs.first, rhs.second);
+    // lhs: [0,k+1) [k+1,n) == [0,k] [k+1,n)
+    // rhs: [0,k) [k,n) == [0,k-1] [k,n)
+    // [0,k-1] [k+1,n) == rhs.first lhs.second
+    pair<Node*, Node*> lhs = split(current, k + 1);
+    pair<Node*, Node*> rhs = split(lhs.first, k);
+    return merge(rhs.first, lhs.second);
   }
 
   Node* find(Node* current, int k) {
+    assert(current != NULL);
     int current_size = compute_size(current->children[0]);
     if(k < current_size) {
       return find(current->children[0], k);
@@ -162,9 +167,12 @@ int main(){
   treap.insert(1,22);
   treap.insert(2,101010);
   treap.insert(5,27);
-  // treap.insert(0,2);
-  // treap.insert(0,3);
-  // treap.insert(0,1000);
+  cout << treap.find(0) << endl;
+  cout << treap.find(1) << endl;
+  cout << treap.find(2) << endl;
+  cout << treap.find(3) << endl;
+  cout << "------" << endl;
+  treap.erase(3);
   cout << treap.find(0) << endl;
   cout << treap.find(1) << endl;
   cout << treap.find(2) << endl;
