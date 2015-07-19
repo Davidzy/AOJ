@@ -45,23 +45,33 @@ struct Node {
   int val;
   Node* children[2];
   double priority;
-  int sub_tree_size;
-  int sub_tree_sum;
+  int size;
+  int val_sum;
   Node(int val,double priority)
-    : val(val), priority(priority),sub_tree_size(1),sub_tree_sum(val){
+    : val(val), priority(priority),size(1),val_sum(val){
     children[0] = children[1] = NULL;
   }
 };
 
 class Treap {
-public:
-  Node* update(Node *current){
-    current->sub_tree_size
+private:
+  Node* root;
+
+  int compute_size(Node *current) {
+    return (current == NULL ? 0 : current->size);
+  }
+
+  int compute_sum(Node *current) {
+    return (current == NULL ? 0 : current->val_sum);
+  }
+
+  Node* update(Node *current) {
+    current->size
       = compute_size(current->children[0])
       + compute_size(current->children[1]) + 1;
-    current->sub_tree_sum
+    current->val_sum
       = compute_sum(current->children[0])
-      + compute_sum(current->children[1]);
+      + compute_sum(current->children[1]) + current->val;
     return current;
   }
 
@@ -79,13 +89,13 @@ public:
     }
   }
 
-  pair<Node*, Node*> split(Node* current, int k){
+  pair<Node*, Node*> split(Node* current, int k) { // [0,k), [k,n)
     if(current == NULL) {
       Node* dummy = NULL;
       return make_pair(dummy, dummy);
     }
     
-    if(k <= compute_size(current->children[0])){
+    if (k <= compute_size(current->children[0])) {
       pair<Node*, Node*> s = split(current->children[0], k);
       current->children[0] = s.second;
       return make_pair(s.first, update(current));
@@ -98,32 +108,68 @@ public:
     }
   }
 
-  Node* insert(Node* current, int k, int v){
+  Node* insert(Node* current, int k, int v) {
     pair<Node*, Node*> splitted = split(current, k);
     double priority = (double)rand() / (double)RAND_MAX;
-    Node* solo = new Node(v, priority);
-    Node* tmp = merge(splitted.first, solo);
-    return merge(tmp, splitted.second);
+    current = merge(splitted.first, new Node(v, priority));
+    current = merge(current, splitted.second);
+    return update(current);
   }
 
-  Node* erase(Node* current, int k){
+  Node* erase(Node* current, int k) {
     pair<Node*, Node*> lhs = split(current, k - 1);
-    pair<Node*, Node*> rhs = split(lhs.second, 1);
+    pair<Node*, Node*> rhs = split(lhs.second, k);
     return merge(lhs.first, rhs.second);
   }
 
-private:
-  int compute_size(Node *current) {
-    return (current == NULL ? 0 : current->sub_tree_size);
+  Node* find(Node* current, int k) {
+    int current_size = compute_size(current->children[0]);
+    if(k < current_size) {
+      return find(current->children[0], k);
+    }
+    else if(k == current_size) {
+      return current;
+    }
+    else {
+      return find(current->children[1], k - current_size - 1);
+    }
   }
-  int compute_sum(Node *current) {
-    return (current == NULL ? 0 : current->sub_tree_sum);
+
+public:
+  Treap() {
+    root = NULL;
+  }
+
+  void insert(int k, int v) {
+    root = insert(root, k, v);
+  }
+
+  void erase(int k) {
+    root = erase(root, k); 
+  }
+
+  int find(int k) {
+    Node* node = find(root, k);
+    return node->val;
   }
 };
 
 int main(){
   int sequence_length;
   int total_queries;
+  Treap treap;
+  treap.insert(0,1);
+  treap.insert(1,22);
+  treap.insert(2,101010);
+  treap.insert(5,27);
+  // treap.insert(0,2);
+  // treap.insert(0,3);
+  // treap.insert(0,1000);
+  cout << treap.find(0) << endl;
+  cout << treap.find(1) << endl;
+  cout << treap.find(2) << endl;
+  cout << treap.find(3) << endl;
+
   while(~scanf("%d %d",&sequence_length,&total_queries)){
     vector<int> sequence;
     for(int seq_i = 0; seq_i < sequence_length; seq_i++){
@@ -131,6 +177,7 @@ int main(){
       scanf("%d",&num);
       sequence.push_back(num);
     }
+
     vector<Query> queries;
     for(int query_i = 0; query_i < total_queries; query_i++){
       int command;
