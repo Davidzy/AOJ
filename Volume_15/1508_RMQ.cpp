@@ -116,7 +116,6 @@ private:
 
   Node* find(Node* current, int k) {
     if(current == NULL) return NULL;
-    assert(current != NULL);
     int lhs_size = compute_size(current->children[0]);
     if(k < lhs_size) {
       return find(current->children[0], k);
@@ -139,13 +138,11 @@ private:
   }
   
   int query(Node* current, int left_i, int right_i) {
-    int current_size = compute_size(current);
-    if(left_i >= current_size || right_i < 0) return INF;
-    if(left_i <= 0 && right_i >= current_size - 1) return compute_range_min(current);
-
-    int lhs_size = compute_size(current->children[0]);
-    return min(query(current->children[0], left_i, right_i),
-	       query(current->children[1], left_i - lhs_size - 1, right_i - lhs_size - 1));
+    pair<Node*, Node*> rhs = split(current, right_i + 1); // 1st:[0,right_i+1) 2nd:[right_i+1,n)
+    pair<Node*, Node*> lhs = split(rhs.first, left_i); // 1st:[0,left_i) 2nd:[left_i,right_i]
+    int res = compute_range_min(lhs.second);
+    current = merge(merge(lhs.first,lhs.second),rhs.second);
+    return res;
   }
 
 public:
@@ -213,8 +210,6 @@ int main(){
 	treap.erase(left_i);
 	treap.insert(left_i,right_i);
       }
-      // printf("command:%d\n",command);
-      // treap.disp();
     }
   }
 }
