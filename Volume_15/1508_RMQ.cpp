@@ -30,26 +30,14 @@ static const double EPS = 1e-8;
 static const int tx[] = {0,1,0,-1};
 static const int ty[] = {-1,0,1,0};
 
-class Query {
-public:
-  int command;
-  int left_i;
-  int right_i;
-  Query(int command, int left_i, int right_i){
-    this->command = command;
-    this->left_i = left_i;
-    this->right_i = right_i;
-  }
-};
-
 struct Node {
   int val;
   Node* children[2];
   double priority;
   int size;
-  int val_sum;
+  int range_min;
   Node(int val,double priority)
-    : val(val), priority(priority),size(1),val_sum(val){
+    : val(val), priority(priority),size(1),range_min(val){
     children[0] = children[1] = NULL;
   }
 };
@@ -62,17 +50,17 @@ private:
     return (current == NULL ? 0 : current->size);
   }
 
-  int compute_sum(Node *current) {
-    return (current == NULL ? 0 : current->val_sum);
+  int compute_range_min(Node *current) {
+    return (current == NULL ? INF : current->range_min);
   }
 
   Node* update(Node *current) {
     current->size
       = compute_size(current->children[0])
       + compute_size(current->children[1]) + 1;
-    current->val_sum
-      = compute_sum(current->children[0])
-      + compute_sum(current->children[1]) + current->val;
+    current->range_min
+      = min(min(compute_range_min(current->children[0]),current->val),
+	    min(compute_range_min(current->children[1]),current->val));
     return current;
   }
 
@@ -127,26 +115,37 @@ private:
   }
 
   Node* find(Node* current, int k) {
+    if(current == NULL) return NULL;
     assert(current != NULL);
-    int current_size = compute_size(current->children[0]);
-    if(k < current_size) {
+    int lhs_size = compute_size(current->children[0]);
+    if(k < lhs_size) {
       return find(current->children[0], k);
     }
-    else if(k == current_size) {
+    else if(k == lhs_size) {
       return current;
     }
     else {
-      return find(current->children[1], k - current_size - 1);
+      return find(current->children[1], k - lhs_size - 1);
     }
   }
   
   Node* shift(Node* current, int left_i, int right_i) { // [left_i,right_i]
-    //[0,left_i-1] [right_i] [left_i+1,right_i-1] [left_i] [left_i+1,n]
-    pair<Node*, Node*> tmp_lhs = split(current, left_i + 1); // 1st:[0,left_i] 2nd:[left_i,n)
-    pair<Node*, Node*> lhs = split(tmp_lhs.first, left_i); // 1st:[0,left_i-1] 2nd:left_i
-    pair<Node*, Node*> mid = split(tmp_lhs.second, right_i); // 1st:[left_i + 1,right_i-1] 2nd:[right_i,n)
-    pair<Node*, Node*> rhs = split(mid.second, right_i + 1); // 1st:right_i 2nd:[right_i + 1,n)
-    return merge(merge(merge(merge(lhs.first,rhs.first),mid.first),lhs.second),rhs.second);
+    pair<Node*, Node*> rhs = split(current, right_i + 1); // 1st:[0,right_i] 2nd:[right_i + 1,n)
+    pair<Node*, Node*> lhs = split(rhs.first, right_i); // 1st:[0,right_i-1] 2nd:[right_i,right_i]
+    pair<Node*, Node*> mid = split(lhs.first, left_i); // 1st:[0,left_i-1] 2nd:[left_i,right_i-1]
+
+    //[0,left_i-1] [right_i] [left_i,right_i-1] [right_i+1,n)
+    return merge(merge(merge(mid.first,lhs.second),mid.second),rhs.second);
+  }
+  
+  int query(Node* current, int left_i, int right_i) {
+    int current_size = compute_size(current);
+    if(left_i >= current_size || right_i < 0) return INF;
+    if(left_i <= 0 && right_i >= current_size - 1) return compute_range_min(current);
+
+    int lhs_size = compute_size(current->children[0]);
+    return min(query(current->children[0], left_i, right_i),
+	       query(current->children[1], left_i - lhs_size - 1, right_i - lhs_size - 1));
   }
 
 public:
@@ -170,39 +169,52 @@ public:
   void shift(int left_i, int right_i) {
     root = shift(root, left_i, right_i);
   }
+
+  int query(int left_i, int right_i) {
+    return query(root, left_i, right_i);
+  }
+
+  void disp() {
+    int idx = 0;
+    Node* node;
+    printf("---------------\n");
+    while((node = find(root, idx)) != NULL) {
+      printf("%d: %d\n",idx,node->val);
+      idx++;
+    }
+  }
 };
 
 int main(){
   int sequence_length;
   int total_queries;
-  Treap treap;
-  treap.insert(0,1);
-  treap.insert(1,22);
-  treap.insert(2,101010);
-  treap.insert(3,27);
-  treap.insert(4,33);
-  treap.shift(1,3);
-  cout << treap.find(0) << endl;
-  cout << treap.find(1) << endl;
-  cout << treap.find(2) << endl;
-  cout << treap.find(3) << endl;
-  cout << treap.find(4) << endl;
 
   while(~scanf("%d %d",&sequence_length,&total_queries)){
     vector<int> sequence;
+    Treap treap;
     for(int seq_i = 0; seq_i < sequence_length; seq_i++){
       int num;
       scanf("%d",&num);
-      sequence.push_back(num);
+      treap.insert(seq_i,num);
     }
 
-    vector<Query> queries;
     for(int query_i = 0; query_i < total_queries; query_i++){
       int command;
       int left_i;
       int right_i;
       scanf("%d %d %d",&command,&left_i,&right_i);
-      queries.push_back(Query(command,left_i,right_i));
+      if(command == 0) {
+	treap.shift(left_i, right_i);
+      }
+      else if(command == 1) {
+	printf("%d\n",treap.query(left_i, right_i));
+      }
+      else if(command == 2) {
+	treap.erase(left_i);
+	treap.insert(left_i,right_i);
+      }
+      // printf("command:%d\n",command);
+      // treap.disp();
     }
   }
 }
