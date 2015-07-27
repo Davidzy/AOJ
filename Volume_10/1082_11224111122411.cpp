@@ -81,12 +81,11 @@ int main(){
   while(cin >> text){
     if(text == "#") break;
     memset(dp,0,sizeof(dp));
-    dp[0][head_hiragana(text[0] - '0')][1] = 1;
-    dp[0][head_hiragana(text[0] - '0')][0] = 1;
+    dp[1][head_hiragana(text[0] - '0')][1] = 1;
 
     for(int text_i = 1; text_i < text.size(); text_i++){
       int current_attribute = text[text_i] - '0';
-      for(int prev_hiragana = 0; prev_hiragana <= 40; prev_hiragana++){
+      for(int prev_hiragana = 0; prev_hiragana <= 45; prev_hiragana++){
 	int prev_attribute = compute_attribute(prev_hiragana);
 	if(current_attribute == prev_attribute){
 	  //h:あ->h:い
@@ -118,8 +117,9 @@ int main(){
       res = 1;
     }
     else {
-      for(int hiragana = 0; hiragana <= 40; hiragana++){
+      for(int hiragana = 0; hiragana <= 45; hiragana++){
 	res += dp[text.size()][hiragana][1] % MOD;
+	res += dp[text.size()][hiragana][0] % MOD;
       }
     }
     printf("%d\n",res % MOD);
