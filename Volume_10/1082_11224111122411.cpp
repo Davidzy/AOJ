@@ -112,15 +112,9 @@ int main(){
       }
     }
 
-    int res = 0;
-    if(text.size() == 1){
-      res = 1;
-    }
-    else {
-      for(int hiragana = 0; hiragana <= 45; hiragana++){
-	res += dp[text.size()][hiragana][1] % MOD;
-	res += dp[text.size()][hiragana][0] % MOD;
-      }
+    for(int hiragana = 0; hiragana <= 45; hiragana++){
+      res += dp[text.size()][hiragana][1] % MOD;
+      res += dp[text.size()][hiragana][0] % MOD;
     }
     printf("%d\n",res % MOD);
   }
