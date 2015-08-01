@@ -30,56 +30,38 @@ int ty[] = {-1,0,1,0};
  
 static const double EPS = 1e-8;
 
+int dp[1<<20];
+
 int main(){
   int num_of_coins;
-  ll change;
-  while(~scanf("%d %lld",&num_of_coins,&change)){
+  int change;
+  while(~scanf("%d %d",&num_of_coins,&change)){
     if(num_of_coins == 0 && change == 0) break;
+    memset(dp,0x3f,sizeof(dp));
 
-    vector<ll> coins;
+    vector<int> coins;
     for(int coin_i = 0; coin_i < num_of_coins; coin_i++){
-      ll price;
-      scanf("%lld",&price);
+      int price;
+      scanf("%d",&price);
       coins.push_back(price);
     }
-    sort(coins.begin(),coins.end(),greater<ll>());
-    ll min_coins = numeric_limits<ll>::max();
-    for(int S = 0; S < (1<<coins.size()); S++){
-      ll upper = 1000000;
-      ll lower = 0;
-      ll last_sum = 0;
-      for(int round = 0; round < 50; round++){
-	ll mid = lower + (upper - lower) / 2LL;
-	ll sum = 0;
-	for(int coin_i = 0; coin_i < num_of_coins; coin_i++){
-	  if(!(S & (1<<coin_i))) continue;
-	  sum += coins[coin_i] * mid;
-	}
 
-	if(sum >= change){
-	  upper = mid;
-	  last_sum = sum;
-	}
-	else {
-	  lower = mid;
-	}
-      }
-      
+    int sum[1<<12] = {};
+    for(int S = 0; S < (1<<num_of_coins); S++){
       for(int coin_i = 0; coin_i < num_of_coins; coin_i++){
-	  if(!(S & (1<<coin_i))) continue;
-	  ll cut_num = 0;
-	  while(last_sum - (coins[coin_i] * (cut_num+1)) >= change
-		&& (cut_num + 1) <= upper){
-	    cut_num++;
-	  }
-	  last_sum -= coins[coin_i] * cut_num;
-      }
-
-      if(last_sum == change){
-	min_coins = min(upper,min_coins);
+	if(!(S & (1<<coin_i))) continue;
+	sum[S] += coins[coin_i];
       }
     }
 
-    printf("%lld\n",min_coins);
+    dp[0] = 0;
+    for(int S = 0; S < (1<<num_of_coins); S++){
+      for(int prev = 0; prev + sum[S] <= change; prev++){
+	int next = prev + sum[S];
+	dp[next] = min(dp[prev] + 1,dp[next]);
+      }
+    }
+
+    printf("%d\n",dp[change]);
   }
 }
