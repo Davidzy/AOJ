@@ -51,39 +51,36 @@ int match(int x,int y){
 int main(){
   while(~scanf("%d %d",&H,&W)){
     memset(dp,0,sizeof(dp));
-    memset(stage,'\0',sizeof(stage));
-    memset(crest,'\0',sizeof(crest));
+    int res = 0;
     for(int y = 0; y < H; y++){
-      char line[1010];
-      scanf("%s",line);
+      string line;
+      cin >> line;
       for(int x = 0; x < W; x++){
 	stage[y][x] = line[x];
       }
     }
     for(int y = 0; y < 2; y++){
-      char line[4];
-      scanf("%s",line);
+      string line;
+      cin >> line;
       for(int x = 0; x < 2; x++){
 	crest[y][x] = line[x];
       }
     }
-
-    int res = 0;
 
     for(int y = 0; y < H; y++){
       for(int x = 0; x < W; x++){
 	res += match(x,y);
       }
     }
-
+    int base = res;
     const char JOI[] = {'J','O','I'};
     for(int y = 0; y < H; y++){
       for(int x = 0; x < W; x++){
 	for(int char_i = 0; char_i < 3; char_i++){
-	  int tmp = match(x,y) + match(x-1,y) + match(x,y-1) + match(x-1,y-1);
+	  int tmp = base - (match(x,y) + match(x-1,y) + match(x,y-1) + match(x-1,y-1));
 	  char prev = stage[y][x];
 	  stage[y][x] = JOI[char_i];
-	  res = max(res,res - tmp + (match(x,y) + match(x-1,y) + match(x,y-1) + match(x-1,y-1)));
+	  res = max(res,tmp + (match(x,y) + match(x-1,y) + match(x,y-1) + match(x-1,y-1)));
 	  stage[y][x] = prev;
 	}
       }
