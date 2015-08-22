@@ -35,13 +35,13 @@ int main(){
   int num_of_problems;
 
   while(~scanf("%d",&num_of_problems)){
-    vector<int> problems;
+    vector<ll> problems;
     for(int problem_i = 0; problem_i < num_of_problems; problem_i++){
-      int problem;
-      scanf("%d",&problem);
+      ll problem;
+      scanf("%lld",&problem);
       problems.push_back(problem);
     }
-    int sum[300001] = {};
+    ll sum[300001] = {};
     sort(problems.begin(),problems.end());
     for(int problem_i = 0; problem_i < num_of_problems; problem_i++){
       sum[problem_i + 1] += sum[problem_i] + problems[problem_i];
@@ -50,22 +50,22 @@ int main(){
     int num_of_participants;
     scanf("%d",&num_of_participants);
 
-    int abilities[300000];
+    ll abilities[300000];
     for(int participant_i = 0; participant_i < num_of_participants; participant_i++){
-      int ability;
-      scanf("%d",&ability);
+      ll ability;
+      scanf("%lld",&ability);
       abilities[participant_i] = ability;
     }
 
-    int targets[300000];
+    ll targets[300000];
     for(int participant_i = 0; participant_i < num_of_participants; participant_i++){
-      int target;
-      scanf("%d",&target);
+      ll target;
+      scanf("%lld",&target);
       targets[participant_i] = target;
     }
     for(int participant_i = 0; participant_i < num_of_participants; participant_i++){
-      int solved = upper_bound(problems.begin(),problems.end(),abilities[participant_i]) - problems.begin() - 1;
-      printf("%s\n",(sum[solved + 1] >= targets[participant_i]) ? "Yes" : "No");
+      int solved = upper_bound(problems.begin(),problems.end(),abilities[participant_i]) - problems.begin();
+      printf("%s\n",(sum[solved] >= targets[participant_i]) ? "Yes" : "No");
     }
   }
 }
