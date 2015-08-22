@@ -26,7 +26,7 @@ typedef long long ll;
 typedef pair <double,double> P;
 typedef pair <int,P> PP;
    
-static const double EPS = 1e-8;
+static const double EPS = 1e-12;
    
 static const int tx[] = {0,1,0,-1};
 static const int ty[] = {-1,0,1,0};
@@ -45,23 +45,22 @@ bool equals(double lhs,double rhs){
   return (lhs <= rhs + EPS && lhs >= rhs - EPS);
 }
 
-P calc(vector<Player> players){
+P calc(vector<Player> players,int target_team){
   int time = INF;
-  double distance = -1;
+  int distance = -1;
   for(int player_i = 0; player_i + 1 < players.size(); player_i++){
+    if(players[player_i].team != target_team) continue;
     if(players[player_i].team != players[player_i + 1].team) continue;
     if(players[player_i].back_number == players[player_i + 1].back_number) continue;
-    double tmp;
-    if((tmp = sqrt((double)(players[player_i].x - players[player_i + 1].x) * (players[player_i].x - players[player_i + 1].x)
-		   + (double)(players[player_i].y - players[player_i + 1].y) * (players[player_i].y - players[player_i + 1].y))) < distance) continue;
+    int tmp;
+    if((tmp = ((players[player_i].x - players[player_i + 1].x) * (players[player_i].x - players[player_i + 1].x)
+	       + (players[player_i].y - players[player_i + 1].y) * (players[player_i].y - players[player_i + 1].y))) < distance) continue;
     
     // equal
-    if(equals(tmp,distance)){
+    if(tmp == distance){
       if(time > (players[player_i + 1].frame - players[player_i].frame)){
 	time = players[player_i + 1].frame - players[player_i].frame;
-	distance = tmp;
       }
-      continue;
     }
     // larger
     else {
@@ -74,7 +73,7 @@ P calc(vector<Player> players){
     return P(-1, -1);
   }
   else{
-    return P(distance,(double)time/60.0);
+    return P(sqrt((double)distance),(double)time/60.0);
   }
 }
 
@@ -82,28 +81,28 @@ int main()
 {
   int num_of_frames;
   while(~scanf("%d",&num_of_frames)){
-    vector<Player> players[2];
+    vector<Player> players;
     for(int frame_i = 0; frame_i < num_of_frames; frame_i++){
       int frame;
       int back_number;
       int team;
       int x,y;
       scanf("%d %d %d %d %d",&frame,&back_number,&team,&x,&y);
-      players[team].push_back(Player(frame,back_number,team,x,y));
+      players.push_back(Player(frame,back_number,team,x,y));
     }
-    P team_A = calc(players[0]);
-    P team_B = calc(players[1]);
+    P team_A = calc(players,0);
+    P team_B = calc(players,1);
     if(equals(team_A.first,-1)){
       printf("%d %d\n",-1,-1);
     }
     else{
-      printf("%.8lf %.8lf\n",team_A.first,team_A.second);
+      printf("%.12lf %.12lf\n",team_A.first,team_A.second);
     }
     if(equals(team_B.first,-1)){
       printf("%d %d\n",-1,-1);
     }
     else{
-      printf("%.8lf %.8lf\n",team_B.first,team_B.second);
+      printf("%.12lf %.12lf\n",team_B.first,team_B.second);
     }
   }
 }
