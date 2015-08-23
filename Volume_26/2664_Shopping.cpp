@@ -36,22 +36,24 @@ private:
   int* par;
   int* rank;
   int* weight;
+  int* price;
 public:
-  UnionFindTree(int n){
+  UnionFindTree(vector<int> prices){
+    int n = prices.size();
     par = new int[n]();
     rank = new int[n]();
-    weight = new int[n]();
-    for(int i=0;i<n;i++){
+    price = new int[n]();
+    for(int i = 0; i < n; i++){
       par[i] = i;
       rank[i] = 0;
-      weight[i] = 1;
+      price[i] = prices[i];
     }
   }
 
   ~UnionFindTree(){
     delete[] rank;
     delete[] par;
-    delete[] weight;
+    delete[] price;
   }
 
   int find(int x){
@@ -69,16 +71,16 @@ public:
 
     if(rank[x] < rank[y]){
       par[x] = y;
-      weight[y] += weight[x];
+      price[y] = min(price[x],price[y]);
     } else {
       par[y] = x;
-      weight[x] += weight[y];
+      price[x] = min(price[x],price[y]);
       if (rank[x] == rank[y]) rank[x]++;
     }
   }
 
-  int count(int x){
-    return weight[find(x)];
+  int get_min_price(int x){
+    return price[find(x)];
   }
   bool same(int x,int y){
     return find(x) == find(y);
@@ -97,36 +99,31 @@ int name2idx(map<string,int>& dict, string name){
 int main(){
   int num_of_foodstuffs;
   while(~scanf("%d",&num_of_foodstuffs)){
-    int prices[5001] = {};
-    int min_cost[5001];
-    memset(min_cost,0x3f,sizeof(min_cost));
-
     map<string,int> dict;
+    vector<int> prices;
     for(int food_stuff_i = 0; food_stuff_i < num_of_foodstuffs; food_stuff_i++){
       string name;
       int price;
       cin >> name >> price;
-      prices[name2idx(dict,name)] = price;
-      min_cost[name2idx(dict,name)] = price;
+
+      // for later str2idx process
+      name2idx(dict,name);
+
+      prices.push_back(price);
     }
     int num_of_magics;
     scanf("%d",&num_of_magics);
 
-    UnionFindTree uft(5001);
+    UnionFindTree uft(prices);
     for(int magic_i = 0; magic_i < num_of_magics; magic_i++){
       string from_food, to_food;
       cin >> from_food >> to_food;
       uft.unite(name2idx(dict,from_food),name2idx(dict,to_food));
-      if(min_cost[uft.find(name2idx(dict,from_food))]
-	 > min(prices[name2idx(dict,from_food)],prices[name2idx(dict,to_food)])){
-	min_cost[uft.find(name2idx(dict,from_food))]
-	  = min(prices[name2idx(dict,from_food)],prices[name2idx(dict,to_food)]);
-      }
     }
 
     int res = 0;
     for(int food_stuff_i = 0; food_stuff_i < num_of_foodstuffs; food_stuff_i++){
-      res += min_cost[uft.find(food_stuff_i)];
+      res += uft.get_min_price(food_stuff_i);
     }
     printf("%d\n",res);
   }
