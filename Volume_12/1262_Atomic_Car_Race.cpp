@@ -41,14 +41,15 @@ double compute_next_x_duration(double x, double r, double v, double e, double f)
 
 double compute_duration(double from, double to, double r, double v, double e, double f){
   double sum = 0;
-  for(int pos = from; pos < to; pos++){
+  
+  for(int pos = 0; pos < to - from; pos++){
     sum += compute_next_x_duration(pos,r,v,e,f);
   }
   return sum;
 }
 
 
-double dp[101][2]; // dp[current_i][used]
+double dp[101][101]; // dp[current_i][last_change_pos]
 
 int main(){
   int num_of_checkpoints;
@@ -67,26 +68,30 @@ int main(){
     double r,v,e,f;
     scanf("%lf %lf %lf %lf",&r,&v,&e,&f);
 
-    fill((double*)dp,(double*)dp + 101 * 2,1000000000000.0);
-    dp[0][1] = 0;
+    fill((double*)dp,(double*)dp + 101 * 101,1000000000000.0);
+    dp[0][0] = 0;
     for(int current_i = 0; current_i < checkpoints.size(); current_i++){
       for(int prev_i = 0; prev_i < current_i; prev_i++){
 	// x is a nonnegative integer denoting the distance (in kilometers) 
 	// from the latest checkpoint where tires are changed
 	
-	dp[current_i][0]
-	  = min(dp[prev_i][1]
+	dp[current_i][prev_i]
+	  = min(dp[prev_i][prev_i]
 		+ compute_duration(checkpoints[prev_i],checkpoints[current_i],r,v,e,f),
-		dp[current_i][0]);
+		dp[current_i][prev_i]);
 
-	dp[current_i][1]
-	  = min(dp[prev_i][1]
+	dp[current_i][current_i]
+	  = min(dp[prev_i][prev_i]
 		+ compute_duration(checkpoints[prev_i],checkpoints[current_i],r,v,e,f)
 		+ tire_change_time,
-		dp[current_i][1]);
+		dp[current_i][current_i]);
       }
     }
 
-    printf("%lf\n",min(dp[checkpoints.size()-1][1],dp[checkpoints.size()-1][0]));
+    double res = numeric_limits<double>::max();
+    for(int i = 0; i < checkpoints.size(); i++){
+      res = min(res,dp[checkpoints.size()-1][i]);
+    }
+    printf("%lf\n",res);
   }
 }
