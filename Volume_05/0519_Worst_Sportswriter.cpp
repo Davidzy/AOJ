@@ -32,6 +32,7 @@ static const int tx[] = {0,1,0,-1};
 static const int ty[] = {-1,0,1,0};
 
 vector<int> ans_path;
+int win[5002];
 
 int count_candidate(int team, int depth, vector<int> edges[5001], int num_of_teams){
   if(edges[team].size() == 0){
@@ -47,6 +48,10 @@ int count_candidate(int team, int depth, vector<int> edges[5001], int num_of_tea
 }
 
 void compute_path(int team, int depth, vector<int> edges[5001], int num_of_teams, vector<int>& path){
+  if(depth > num_of_teams){
+    return;
+  }
+
   if(edges[team].size() == 0 && depth == num_of_teams){
     ans_path = path;
     return;
@@ -60,22 +65,16 @@ void compute_path(int team, int depth, vector<int> edges[5001], int num_of_teams
   }
 }
 
-bool visited[5002][5002];
-int win[5002];
-
 int main(){
   int num_of_teams;
   int num_of_results;
   while(~scanf("%d %d",&num_of_teams,&num_of_results)){
     vector<int> edges[5002];
-    memset(visited,false,sizeof(visited));
     memset(win,0,sizeof(win));
     for(int i = 0; i < num_of_results; i++){
       int from,to;
       scanf("%d %d",&from,&to);
       edges[from].push_back(to);
-      visited[from][to] = true;
-      visited[to][from] = true;
       win[from]++;
     }
 
@@ -85,10 +84,9 @@ int main(){
     }
     for(int team_i = 1; team_i <= num_of_teams; team_i++){
       for(int team_j = team_i + 1; team_j <= num_of_teams; team_j++){
-    	if(visited[team_i][team_j]) continue;
 	if(win[team_i] != win[team_j]) continue;
 
-	win[team_j]++;
+	win[team_i]++;
 	edges[team_i].push_back(team_j);
       }
     }
