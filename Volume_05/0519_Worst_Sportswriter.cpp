@@ -32,7 +32,7 @@ static const int tx[] = {0,1,0,-1};
 static const int ty[] = {-1,0,1,0};
 
 vector<int> ans_path;
-int win[5002];
+int depth[5002];
 
 int count_candidate(int team, int depth, vector<int> edges[5001], int num_of_teams){
   if(edges[team].size() == 0){
@@ -47,65 +47,44 @@ int count_candidate(int team, int depth, vector<int> edges[5001], int num_of_tea
   return res;
 }
 
-void compute_path(int team, int depth, vector<int> edges[5001], int num_of_teams, vector<int>& path){
-  if(depth > num_of_teams){
-    return;
-  }
-
-  if(edges[team].size() == 0 && depth == num_of_teams){
-    ans_path = path;
-    return;
-  }
-
-  for(int i = 0; i < edges[team].size(); i++){
-    int next = edges[team][i];
-    path.push_back(next);
-    compute_path(next,depth + 1,edges,num_of_teams,path);
-    path.pop_back();
-  }
-}
-
 int main(){
   int num_of_teams;
   int num_of_results;
   while(~scanf("%d %d",&num_of_teams,&num_of_results)){
     vector<int> edges[5002];
-    memset(win,0,sizeof(win));
+    memset(depth,0,sizeof(depth));
     for(int i = 0; i < num_of_results; i++){
       int from,to;
       scanf("%d %d",&from,&to);
       edges[from].push_back(to);
-      win[from]++;
+      depth[to]++;
     }
 
     int count = 0;
     for(int team = 1; team <= num_of_teams; team++){
       count += count_candidate(team,1,edges,num_of_teams);
     }
-    for(int team_i = 1; team_i <= num_of_teams; team_i++){
-      for(int team_j = team_i + 1; team_j <= num_of_teams; team_j++){
-	if(win[team_i] != win[team_j]) continue;
 
-	win[team_i]++;
-	edges[team_i].push_back(team_j);
+    queue<int> que;
+    for(int team = 1; team <= num_of_teams; team++){
+      if(depth[team] == 0){
+	que.push(team);
       }
     }
     
-    int champ_team = 1;
-    int max_win = 0;
-    for(int team = 1; team <= num_of_teams; team++){
-      if(win[team] > max_win){
-	max_win = win[team];
-	champ_team = team;
+    while(!que.empty()){
+      int team = que.front();
+      que.pop();
+      printf("%d\n",team);
+      for(int i = 0; i < edges[team].size(); i++){
+	int next = edges[team][i];
+	depth[next]--;
+	if(depth[next] == 0){
+	  que.push(next);
+	}
       }
     }
 
-    vector<int> path;
-    path.push_back(champ_team);
-    compute_path(champ_team,1,edges,num_of_teams,path);
-    for(int i = 0; i < ans_path.size(); i++){
-      printf("%d\n",ans_path[i]);
-    }
     printf("%d\n",(count == 0 || count >= 2) ? 1 : 0);
   }
 }
