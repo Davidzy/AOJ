@@ -31,26 +31,11 @@ static const double EPS = 1e-8;
 static const int tx[] = {0,1,0,-1};
 static const int ty[] = {-1,0,1,0};
 
-vector<int> ans_path;
-int depth[5002];
-
-int count_candidate(int team, int depth, vector<int> edges[5001], int num_of_teams){
-  if(edges[team].size() == 0){
-    return (depth == num_of_teams);
-  }
-
-  int res = 0;
-  for(int i = 0; i < edges[team].size(); i++){
-    int next = edges[team][i];
-    res += count_candidate(next,depth + 1,edges,num_of_teams);
-  }
-  return res;
-}
-
 int main(){
   int num_of_teams;
   int num_of_results;
   while(~scanf("%d %d",&num_of_teams,&num_of_results)){
+    int depth[5002];
     vector<int> edges[5002];
     memset(depth,0,sizeof(depth));
     for(int i = 0; i < num_of_results; i++){
@@ -60,11 +45,6 @@ int main(){
       depth[to]++;
     }
 
-    int count = 0;
-    for(int team = 1; team <= num_of_teams; team++){
-      count += count_candidate(team,1,edges,num_of_teams);
-    }
-
     queue<int> que;
     for(int team = 1; team <= num_of_teams; team++){
       if(depth[team] == 0){
@@ -72,7 +52,11 @@ int main(){
       }
     }
     
+    bool has_many = false;
     while(!que.empty()){
+      if(que.size() >= 2){
+	has_many = true;
+      }
       int team = que.front();
       que.pop();
       printf("%d\n",team);
@@ -85,6 +69,6 @@ int main(){
       }
     }
 
-    printf("%d\n",(count == 0 || count >= 2) ? 1 : 0);
+    printf("%d\n",has_many ? 1 : 0);
   }
 }
