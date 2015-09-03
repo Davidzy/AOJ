@@ -97,6 +97,23 @@ public:
 
 };
 
+
+bool dfs(Domino current_state,int visited, int pos, const vector<Domino>& dominos){
+  if(visited == (1<<dominos.size()) - 1){
+    return true;
+  }
+
+  int res = false;
+  for(int i = 0; i < dominos.size(); i++){
+    if(visited & (1<<i)) continue;
+    int pattern;
+    if((pattern = current_state.detect_connect_pattern(dominos[i])) == 0) continue;
+    Domino next = current_state.connect(dominos[i],pattern);
+    res |= dfs(next,visited | (1<<i),i,dominos);
+  }
+  return res;
+}
+
 int main(){
   int n;
   while(~scanf("%d",&n)){
@@ -114,7 +131,7 @@ int main(){
       dominos.push_back(Domino(domino[0] - '0',domino[1] - '0'));
     }
 
-    bool res = true;
+    bool same_check = true;
     for(int num = 0; num <= 6; num++){
       if(same_head_tail & (1 << num)){
 	bool isok = false;
@@ -125,18 +142,16 @@ int main(){
 	  }
 	}
 	if(!isok){
-	  res = false;
+	  same_check = false;
 	  break;
 	}
       }
     }
 
-    for(int S = 0; S <= (1<<dominos.size()); S++){
-      for(int from_i = 0; from_i < dominos.size(); from_i++){
-	for(int to_i = 0; to_i < dominos.size(); to_i++){
-	  
-	}
-      }
+    bool travel_check = false;
+    for(int i = 0; i < dominos.size(); i++){
+      travel_check |= dfs(dominos[i],(1<<i),i,dominos);
     }
+    printf("%s\n",(same_check && travel_check) ? "Yes" : "No");
   }
 }
