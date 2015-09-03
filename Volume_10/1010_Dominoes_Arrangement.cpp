@@ -97,8 +97,7 @@ public:
 
 };
 
-
-bool dfs(Domino current_state,int visited, int pos, const vector<Domino>& dominos){
+bool dfs(Domino& current_state,int visited, const vector<Domino>& dominos){
   if(visited == (1<<dominos.size()) - 1){
     return true;
   }
@@ -109,7 +108,7 @@ bool dfs(Domino current_state,int visited, int pos, const vector<Domino>& domino
     int pattern;
     if((pattern = current_state.detect_connect_pattern(dominos[i])) == 0) continue;
     Domino next = current_state.connect(dominos[i],pattern);
-    res |= dfs(next,visited | (1<<i),i,dominos);
+    res |= dfs(next,visited | (1<<i),dominos);
   }
   return res;
 }
@@ -117,7 +116,6 @@ bool dfs(Domino current_state,int visited, int pos, const vector<Domino>& domino
 int main(){
   int n;
   while(~scanf("%d",&n)){
-    int degree[8];
     vector<Domino> dominos;
 
     int same_head_tail = 0;
@@ -149,9 +147,7 @@ int main(){
     }
 
     bool travel_check = false;
-    for(int i = 0; i < dominos.size(); i++){
-      travel_check |= dfs(dominos[i],(1<<i),i,dominos);
-    }
+    travel_check = dfs(dominos[0],(1<<0),dominos);
     printf("%s\n",(same_check && travel_check) ? "Yes" : "No");
   }
 }
