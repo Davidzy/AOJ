@@ -31,33 +31,24 @@ class Domino {
 private:
   int _head;
   int _tail;
-  bool _can_connect_head;
-  bool _can_connect_tail;
-
 public:
   Domino(int head, int tail) {
     _head = head;
     _tail = tail;
-    _can_connect_head = true;
-    _can_connect_tail = true;
   }
 
   int detect_connect_pattern(Domino d) {
     int res = 0;
-    if(d.get_head() == _head
-       && d.can_connect_head() && can_connect_head()){
+    if(d.get_head() == _head){
       return (res | (1<<0));
     }
-    if(d.get_head() == _tail
-       && d.can_connect_head() && can_connect_tail()){
+    if(d.get_head() == _tail){
       return (res | (1<<1));
     }
-    if(d.get_tail() == _head
-       && d.can_connect_tail() && can_connect_head()){
+    if(d.get_tail() == _head){
       return (res | (1<<2));
     }
-    if(d.get_tail() == _tail
-       && d.can_connect_tail() && can_connect_tail()){
+    if(d.get_tail() == _tail){
       return (res | (1<<3));
     }
     return res;
@@ -86,29 +77,25 @@ public:
   int get_tail() const{
     return _tail;
   }
-
-  bool can_connect_head() const{
-    return _can_connect_head;
-  }
-
-  bool can_connect_tail() const{
-    return _can_connect_tail;
-  }
-
 };
 
+bool dp[1<<22];
+
 bool dfs(Domino& current_state,int visited, const vector<Domino>& dominos){
+  if(dp[visited]) return false;
   if(visited == (1<<dominos.size()) - 1){
     return true;
   }
 
   int res = false;
   for(int i = 0; i < dominos.size(); i++){
+
     if(visited & (1<<i)) continue;
     int pattern;
     if((pattern = current_state.detect_connect_pattern(dominos[i])) == 0) continue;
     Domino next = current_state.connect(dominos[i],pattern);
     res |= dfs(next,visited | (1<<i),dominos);
+    dp[visited | (1<<i)] = true;
   }
   return res;
 }
@@ -117,6 +104,7 @@ int main(){
   int n;
   while(~scanf("%d",&n)){
     vector<Domino> dominos;
+    memset(dp,false,sizeof(dp));
 
     int same_head_tail = 0;
     for(int i = 0; i < n; i++){
@@ -148,6 +136,6 @@ int main(){
 
     bool travel_check = false;
     travel_check = dfs(dominos[0],(1<<0),dominos);
-    printf("%s\n",(same_check && travel_check) ? "Yes" : "No");
+    printf("%s\n",((same_check && travel_check) || (n == 1)) ? "Yes" : "No");
   }
 }
