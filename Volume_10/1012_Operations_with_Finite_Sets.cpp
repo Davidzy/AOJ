@@ -28,26 +28,23 @@ static const int tx[] = {0,1,0,-1};
 static const int ty[] = {-1,0,1,0};
 
 int main(){
-  char alphabet[2];
-  int num_of_elements;
-  vector<int> numbers[256];  
-  while(~scanf("%s %d",alphabet,&num_of_elements)){
-
-    if(alphabet[0] == 'R' && num_of_elements == 0){
-      goto skip;
-    }
-    
-    for(int element_i = 0; element_i < num_of_elements; element_i++){
-      int num;
-      scanf("%d",&num);
-      numbers[alphabet[0]].push_back(num);
+  while(!cin.eof()){
+    char alphabet[2];
+    int num_of_elements;
+    vector<int> numbers[256];  
+    while(~scanf("%s %d",alphabet,&num_of_elements)){
+      if(alphabet[0] == 'R' && num_of_elements == 0){
+	goto skip;
+      }
+      
+      for(int element_i = 0; element_i < num_of_elements; element_i++){
+	int num;
+	scanf("%d",&num);
+	numbers[alphabet[0]].push_back(num);
+      }
     }
   skip:;
     string equation;
     cin >> equation;
-
-    for(int i = 0; i < 256; i++){
-      numbers[i].clear();
-    }
   }
 }
