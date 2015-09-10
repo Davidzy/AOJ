@@ -91,60 +91,51 @@ vector<int> compute_complement(const vector<int>& A,const vector<int>& U){
   return compute_difference(U,intersection);
 }
 
-P equation(const string& str,vector<int> numbers[256],const vector<int>& U, int pos);
-P factor(const string& str,vector<int> numbers[256],const vector<int>& U, int pos);
-P term(const string& str,vector<int> numbers[256],const vector<int>& U, int pos);
+P factor(const string& str,const vector<int>& U, int pos);
+P term(const string& str,const vector<int>& U, int pos);
+vector<int> numbers[256];
+vector<int> U;
 
-P equation(const string& str,vector<int> numbers[256],const vector<int>& U, int pos){
-  return factor(str,numbers,U,pos);
-}
+P factor(const string& str,const vector<int>& U, int pos){
+  vector<int> current_set;
 
-P factor(const string& str,vector<int> numbers[256],const vector<int>& U, int pos){
-  P r1 = term(str,numbers,U,pos);
+  P r1 = term(str,U,pos);
   pos = r1.first;
-  vector<int> current_set = r1.second;
-  while(1){
-    if(pos >= str.size()){
-      break;
-    }
+  current_set = r1.second;
+  while(pos < str.size()
+	&& (str[pos] == 'u' || str[pos] == 'i'
+	    || str[pos] == 'd' || str[pos] == 's')){
+    P r2 = term(str,U,pos+1);
     if(str[pos] == 'u'){
-      P r2 = term(str,numbers,U,pos+1);
       current_set = compute_union(current_set,r2.second);
       pos = r2.first;
     }
     else if(str[pos] == 'i'){
-      P r2 = term(str,numbers,U,pos+1);
       current_set = compute_intersection(current_set,r2.second);
       pos = r2.first;
     }
     else if(str[pos] == 'd'){
-      P r2 = term(str,numbers,U,pos+1);
       current_set = compute_difference(current_set,r2.second);
       pos = r2.first;
     }
     else if(str[pos] == 's'){
-      P r2 = term(str,numbers,U,pos+1);
       current_set = compute_symmetric_difference(current_set,r2.second);
       pos = r2.first;
-    }
-    else{
-      break;
     }
   }
   return P(pos,current_set);
 }
 
-P term(const string& str,vector<int> numbers[256],const vector<int>& U, int pos){
+P term(const string& str, const vector<int>& U, int pos){
   if(str[pos] == '('){
-    P r = equation(str,numbers,U,pos+1);
+    P r = factor(str,U,pos+1);
     pos = r.first;
     pos++;
     return P(pos,r.second);
   }
   else if(str[pos] == 'c'){
-    P r = term(str,numbers,U,pos+1);
-    vector<int> current_set = compute_complement(r.second,U);
-    return P(r.first,current_set);
+    P r = term(str,U,pos+1);
+    return P(r.first,compute_complement(r.second,U));
   }
   else if(str[pos] == 'A' || str[pos] == 'B'
 	  || str[pos] == 'C' || str[pos] == 'D'
@@ -154,31 +145,41 @@ P term(const string& str,vector<int> numbers[256],const vector<int>& U, int pos)
 }
 
 int main(){
-  while(!cin.eof()){
-    char alphabet[2];
+  while(1){
+    char alphabet[8];
     int num_of_elements;
-    vector<int> numbers[256];
-    vector<int> U;
-    while(~scanf("%s %d",alphabet,&num_of_elements)){
+    while(1){
+      if(!(cin >> alphabet >> num_of_elements)){
+	return 0;
+      }
       if(alphabet[0] == 'R' && num_of_elements == 0){
-	goto skip;
+  	break;
       }
       
       for(int element_i = 0; element_i < num_of_elements; element_i++){
-	int num;
-	scanf("%d",&num);
-	numbers[alphabet[0]].push_back(num);
+  	int num;
+  	cin >> num;
+  	numbers[alphabet[0]].push_back(num);
       }
       U = compute_union(numbers[alphabet[0]],U);
     }
-  skip:;
     string text;
     cin >> text;
-    P r = equation(text,numbers,U,0);
+    P r = factor(text,U,0);
     vector<int> result = r.second;
-    for(int i = 0; i < result.size(); i++){
-      printf("%s%d", i == 0 ? "" : " ", result[i]);
+    if(result.size() == 0){
+      printf("NULL");
+    }
+    else{
+      for(int i = 0; i < result.size(); i++){
+  	printf("%s%d", i == 0 ? "" : " ", result[i]);
+      }
     }
     printf("\n");
+    for(int i = 0; i < 256; i++){
+      numbers[i].clear();
+    }
+    U.clear();
+    if(cin.eof()) break;
   }
 }
