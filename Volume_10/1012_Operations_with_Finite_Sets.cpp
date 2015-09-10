@@ -177,7 +177,7 @@ int main(){
     P r = equation(text,numbers,U,0);
     vector<int> result = r.second;
     for(int i = 0; i < result.size(); i++){
-      printf("%s%d", i == 0 ? "" : " ", i);
+      printf("%s%d", i == 0 ? "" : " ", result[i]);
     }
     printf("\n");
   }
