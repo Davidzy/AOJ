@@ -92,16 +92,18 @@ int main(){
     for(int spring_i = 0; spring_i < num_of_springs; spring_i++){
       for(int district_i = 0; district_i < num_of_districts; district_i++){
 	scanf("%d",&spring_district_distance[spring_i][district_i]);
-	que.push(Edge(spring_i,num_of_springs + district_i,spring_district_distance[spring_i][district_i]));
+	if(spring_district_distance[spring_i][district_i] == 0) continue;
+	que.push(Edge(0,num_of_springs + district_i,spring_district_distance[spring_i][district_i]));
       }
     }
 
     int district_distance[51][51];
     for(int i = 0; i < num_of_districts - 1; i++){
-      for(int j = 0; j < num_of_districts - i; j++){
-	scanf("%d",&district_distance[j][i+j]);
-	district_distance[j+i][j] = district_distance[j][i+j];
-	que.push(Edge(num_of_springs + j,num_of_springs + i + j,district_distance[j][i+j]));
+      for(int j = 0; j < num_of_districts - i - 1; j++){
+	scanf("%d",&district_distance[i][i+j+1]);
+	district_distance[j+i+1][i] = district_distance[i][i+j+1];
+	if(district_distance[j+i+1][i] == 0) continue;
+	que.push(Edge(num_of_springs + i,num_of_springs + i + j + 1,district_distance[i][i+j+1]));
       }
     }
 
