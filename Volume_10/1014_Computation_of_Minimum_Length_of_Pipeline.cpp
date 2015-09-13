@@ -98,14 +98,13 @@ int main(){
 
     int district_distance[51][51];
     for(int i = 0; i < num_of_districts - 1; i++){
-      for(int j = 0; j < num_of_springs - i; j++){
+      for(int j = 0; j < num_of_districts - i; j++){
 	scanf("%d",&district_distance[j][i+j]);
 	district_distance[j+i][j] = district_distance[j][i+j];
 	que.push(Edge(num_of_springs + j,num_of_springs + i + j,district_distance[j][i+j]));
       }
     }
 
-    
     int res = 0;
     UnionFindTree uft(101);
     while(!que.empty()){
