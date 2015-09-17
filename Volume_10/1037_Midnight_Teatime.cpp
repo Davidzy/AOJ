@@ -35,20 +35,19 @@ P leaf(const string& expr,int sweets[16],int pos);
 
 P tree(const string& expr,int sweets[16],int pos){
   int set = 0;
-  while(pos < expr.size() && expr[pos] == '('){
+  if(expr[pos] == '('){
     P r1 = leaf(expr,sweets,pos + 1);
     pos = r1.first;
     char ope = expr[pos];
     P r2 = leaf(expr,sweets,pos+1);
     if(ope == 'A'){
-      set |= r1.second & r2.second;
+      set |= (r1.second & r2.second);
     }
     else if(ope == 'O'){
-      set |= r1.second | r2.second;
+      set |= (r1.second | r2.second);
     }
-
     else if(ope == 'X'){
-      set |= r1.second ^ r2.second;
+      set |= (r1.second ^ r2.second);
     }
     pos = r2.first;
   }
@@ -57,21 +56,19 @@ P tree(const string& expr,int sweets[16],int pos){
 
 P leaf(const string& expr,int sweets[16], int pos){
   if(expr[pos] == '('){
-    P r = tree(expr,sweets,pos+1);
+    P r = tree(expr,sweets,pos);
     pos = r.first + 1;
     return P(pos,r.second);
   }
   else{
-    return P(pos+1,expr[pos] - '0');
+    return P(pos+1,sweets[expr[pos] - '0']);
   }
 }
 
 int dfs(string expr,int sweets[16],int pos,int N){
   if(pos >= expr.size()){
     P r = tree(expr,sweets,0);
-    cout << expr << endl;
-    cout << r. second << endl;
-    if(r.second == (1<<N) - 1){
+    if(r.second == (1<<4) - 1){
       return 1;
     }
     else{
@@ -108,7 +105,7 @@ int main(){
       getline(cin,flag_str);
       for(int j = 0; j <= 6; j+=2){
 	if(flag_str[j] - '0'){
-	  bit |= (1<<(flag_str[j] - '0'));
+	  bit |= (1<<(j/2));
 	}
       }
       sweets[i] = bit;
