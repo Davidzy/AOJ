@@ -41,6 +41,8 @@ public:
   }
 };
 
+vector<Point> buckets[2501][2501];
+
 int main(){
   int num_of_combat_planes;
   int num_of_energy_bullets;
@@ -65,12 +67,32 @@ int main(){
       energy_bullets.push_back(Point(x,y));
     }
 
+    const int MAX_H = 10000;
+    const int MAX_W = 10000;
+    for(int energy_bullet_i = 0; energy_bullet_i < num_of_energy_bullets; energy_bullet_i++){
+      int bucket_x = energy_bullets[energy_bullet_i].x / (MAX_W / (radius * 4));
+      int bucket_y = energy_bullets[energy_bullet_i].y / (MAX_H / (radius * 4));
+      buckets[bucket_y][bucket_x].push_back(energy_bullets[energy_bullet_i]);
+    }
+
     int sum = 0;
     for(int combat_plane_i = 0; combat_plane_i < num_of_combat_planes; combat_plane_i++){
-      for(int energy_bullet_i = 0; energy_bullet_i < num_of_energy_bullets; energy_bullet_i++){
-	if(combat_planes[combat_plane_i].include(energy_bullets[energy_bullet_i],radius)){
-	  sum++;
+      int bucket_x = combat_planes[combat_plane_i].x / (MAX_W / (radius * 4));
+      int bucket_y = combat_planes[combat_plane_i].y / (MAX_H / (radius * 4));
+      for(int tx = max(bucket_x - 1,0); tx <= bucket_x + 1; tx++){
+	for(int ty = max(bucket_y - 1,0); ty <= bucket_y + 1; ty++){
+	  for(int i = 0; i < buckets[ty][tx].size(); i++){
+	    if(combat_planes[combat_plane_i].include(buckets[ty][tx][i],radius)){
+	      sum++;
+	    }
+	  }
 	}
+      }
+    }
+    
+    for(int i = 0; i <= 2500; i++){
+      for(int j = 0; j <= 2500; j++){
+	buckets[i][j].clear();
       }
     }
 
