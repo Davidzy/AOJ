@@ -57,14 +57,17 @@ void connect(const vector<string>& words,
 
   // add to left side
   if(remaining > 0){
-    for(int i = 0; i < backward_connection[word_i].size(); i ++){
+    for(int i = 0; i < backward_connection[word_i].size(); i++){
       string front = words[word_j];
       string rear = words[backward_connection[word_i][i]];
+      
+      if(front.size() - remaining < 0) continue;
 
       int add_len = min(remaining,(int)rear.size());
       string other_side = front.substr(front.size() - remaining,add_len);
       string add_side = rear.substr(rear.size() - add_len,add_len);
 
+      if(!is_palindrome(add_side + other_side)) continue;
       cout << is_palindrome(add_side + other_side) << endl;
 
       // goh + abccba hoge
@@ -85,28 +88,31 @@ void connect(const vector<string>& words,
 
   // add to right side
   else {
-    for(int i = 0; i < forward_connection[word_j].size(); i ++){
+    for(int i = 0; i < forward_connection[word_j].size(); i++){
       string front = words[forward_connection[word_j][i]];
       string rear = words[word_i];
 
-      int add_len = min(remaining,(int)front.size());
-      string add_side = front.substr(front.size() - add_len,add_len);
-      string other_side = rear.substr(rear.size() - remaining,add_len);
+      if((int)rear.size() - abs(remaining) < 0) continue;
 
+      int add_len = min(abs(remaining),(int)front.size());
+      string add_side = front.substr(front.size() - add_len,add_len);
+      string other_side = rear.substr(rear.size() - abs(remaining),add_len);
+
+      if(!is_palindrome(other_side + add_side)) continue;
       cout << is_palindrome(other_side + add_side) << endl;
 
       // egoh abccba + hog
-      if(add_len < remaining){
-	dp[word_i][forward_connection[word_j][i]][offset + remaining - add_len]
-	  = max(dp[word_i][forward_connection[word_j][i]][offset + remaining - add_len],
-		dp[word_i][word_j][offset + remaining] + add_len);
+      if(add_len < abs(remaining)){
+  	dp[word_i][forward_connection[word_j][i]][offset + abs(remaining) - add_len]
+  	  = max(dp[word_i][forward_connection[word_j][i]][offset + abs(remaining) - add_len],
+  		dp[word_i][word_j][offset + remaining] + add_len);
       }
 
       // egoh abccba + hogefuga
       else if(add_len >= remaining){
-	dp[word_i][forward_connection[word_j][i]][offset + remaining - add_len]
-	  = max(dp[word_i][forward_connection[word_j][i]][offset + remaining - add_len],
-		dp[word_i][word_j][offset + remaining] + add_len);
+  	dp[word_i][forward_connection[word_j][i]][offset + abs(remaining) - add_len]
+  	  = max(dp[word_i][forward_connection[word_j][i]][offset + abs(remaining) - add_len],
+  		dp[word_i][word_j][offset + remaining] + add_len);
       }
     }
   }
@@ -136,7 +142,20 @@ int main(){
     }
 
     for(int i = 0; i < words.size(); i++){
-      
+      if(is_palindrome(words[i])){
+	dp[i][i][words[i].size() / 2] = words[i].size();
+      }
+      else{
+	dp[i][i][words[i].size()] = 0;
+      }
+    }
+
+    for(int remaining = 0; remaining <= 50; remaining++){
+      for(int word_i = 0; word_i < words.size(); word_i++){
+	for(int word_j = 0; word_j < words.size(); word_j++){
+	  connect(words,forward_connection,backward_connection,word_i,word_j,remaining);	  
+	}
+      }
     }
   }
 }
