@@ -30,7 +30,8 @@ const static int ty[] = {-1,-1,0,1,1,1,0,-1};
  
 static const double EPS = 1e-6;
 
-int dp[101][101][1001];
+int dp[101][101][51];
+const static int offset = 25;
 
 bool is_palindrome(const string& str){
   for(int i = 0; i < str.size() / 2; i++){
@@ -45,6 +46,15 @@ void connect(const vector<string>& words,
 	     vector<int> forward_connection[101],
 	     vector<int> backward_connection[101],
 	     int word_i, int word_j, int remaining){
+  if(dp[word_i][word_j][remaining] == -1) return;
+
+  // remaining == 25 => 0
+  remaining -= offset;
+
+  if(remaining == 0){
+    return;
+  }
+
   // add to left side
   if(remaining > 0){
     for(int i = 0; i < backward_connection[word_i].size(); i ++){
@@ -59,12 +69,16 @@ void connect(const vector<string>& words,
 
       // goh + abccba hoge
       if(add_len < remaining){
-	
+	dp[backward_connection[word_i][i]][word_j][offset + remaining - add_len]
+	  = max(dp[backward_connection[word_i][i]][word_j][offset + remaining - add_len],
+		dp[word_i][word_j][offset + remaining] + add_len);
       }
 
       // agufegoh + abccba hoge
       else if(add_len >= remaining){
-	
+	dp[backward_connection[word_i][i]][word_j][offset + remaining - add_len]
+	  = max(dp[backward_connection[word_i][i]][word_j][offset + remaining - add_len],
+		dp[word_i][word_j][offset + remaining] + add_len);
       }
     }
   }
@@ -81,16 +95,19 @@ void connect(const vector<string>& words,
 
       cout << is_palindrome(other_side + add_side) << endl;
 
-      // egoh abccba + hoge
+      // egoh abccba + hog
       if(add_len < remaining){
-	
+	dp[word_i][forward_connection[word_j][i]][offset + remaining - add_len]
+	  = max(dp[word_i][forward_connection[word_j][i]][offset + remaining - add_len],
+		dp[word_i][word_j][offset + remaining] + add_len);
       }
 
       // egoh abccba + hogefuga
       else if(add_len >= remaining){
-	
+	dp[word_i][forward_connection[word_j][i]][offset + remaining - add_len]
+	  = max(dp[word_i][forward_connection[word_j][i]][offset + remaining - add_len],
+		dp[word_i][word_j][offset + remaining] + add_len);
       }
-
     }
   }
 }
