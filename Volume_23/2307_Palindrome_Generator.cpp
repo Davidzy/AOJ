@@ -51,9 +51,21 @@ void connect(const vector<string>& words,
       string front = words[word_j];
       string rear = words[backward_connection[word_i][i]];
 
-      string other_side = front.substr(front.size() - remaining,remaining);
-      string add_side = rear.substr(rear.size() - remaining,remaining);
+      int add_len = min(remaining,(int)rear.size());
+      string other_side = front.substr(front.size() - remaining,add_len);
+      string add_side = rear.substr(rear.size() - add_len,add_len);
+
       cout << is_palindrome(add_side + other_side) << endl;
+
+      // goh + abccba hoge
+      if(add_len < remaining){
+	
+      }
+
+      // agufegoh + abccba hoge
+      else if(add_len >= remaining){
+	
+      }
     }
   }
 
@@ -63,9 +75,22 @@ void connect(const vector<string>& words,
       string front = words[forward_connection[word_j][i]];
       string rear = words[word_i];
 
-      string other_side = front.substr(front.size() - remaining,remaining);
-      string add_side = rear.substr(rear.size() - remaining,remaining);
-      cout << is_palindrome(add_side + other_side) << endl;
+      int add_len = min(remaining,(int)front.size());
+      string add_side = front.substr(front.size() - add_len,add_len);
+      string other_side = rear.substr(rear.size() - remaining,add_len);
+
+      cout << is_palindrome(other_side + add_side) << endl;
+
+      // egoh abccba + hoge
+      if(add_len < remaining){
+	
+      }
+
+      // egoh abccba + hogefuga
+      else if(add_len >= remaining){
+	
+      }
+
     }
   }
 }
