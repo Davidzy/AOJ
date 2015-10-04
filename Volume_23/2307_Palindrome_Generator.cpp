@@ -56,6 +56,8 @@ void connect(const vector<string>& words,
       cout << is_palindrome(add_side + other_side) << endl;
     }
   }
+
+  // add to right side
   else {
     for(int i = 0; i < forward_connection[word_j].size(); i ++){
       string front = words[forward_connection[word_j][i]];
