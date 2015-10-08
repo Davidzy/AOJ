@@ -73,8 +73,8 @@ int connect(const vector<string>& words,
       if(front.size() - remaining < 0) continue;
 
       int add_len = min(remaining,(int)rear.size());
-      string other_side = front.substr(front.size() - remaining,add_len);
-      string add_side = rear.substr(rear.size() - add_len,add_len);
+      string other_side = front.substr(front.size() - remaining - 1,add_len);
+      string add_side = rear.substr(rear.size() - add_len - 1,add_len);
 
       if(!is_palindrome(add_side + other_side)) continue;
 
