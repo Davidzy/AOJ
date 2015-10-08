@@ -57,13 +57,10 @@ bool is_palindrome(const string& str){
 }
 
 int connect(const vector<string>& words,
-	     vector<int> forward_connection[101],
-	     vector<int> backward_connection[101],
-	     int word_i, int word_j, int remaining){
-  if(dp[word_i][word_j][remaining] == -1) {
-    return 0;
-  }
-
+	    vector<int> forward_connection[101],
+	    vector<int> backward_connection[101],
+	    int word_i, int word_j, int remaining,
+	    priority_queue<State>& que){
   // remaining == 25 => 0
   remaining -= offset;
 
@@ -83,17 +80,10 @@ int connect(const vector<string>& words,
       cout << add_side + other_side << endl;
 
       // goh + abccba hoge
-      if(add_len < remaining){
-	dp[backward_connection[word_i][i]][word_j][offset + remaining - add_len]
-	  = max(dp[backward_connection[word_i][i]][word_j][offset + remaining - add_len],
-		dp[word_i][word_j][offset + remaining] + add_len);
-      }
-
       // agufegoh + abccba hoge
-      else if(add_len >= remaining){
-	dp[backward_connection[word_i][i]][word_j][offset + remaining - add_len]
-	  = max(dp[backward_connection[word_i][i]][word_j][offset + remaining - add_len],
-		dp[word_i][word_j][offset + remaining] + add_len);
+      if(dp[backward_connection[word_i][i]][word_j][offset + remaining - add_len]
+	 < dp[word_i][word_j][offset + remaining] + add_len){
+	que.push(State(backward_connection[word_i][i],word_j,offset + remaining - add_len,dp[word_i][word_j][offset + remaining] + add_len));
       }
     }
   }
@@ -114,17 +104,10 @@ int connect(const vector<string>& words,
       cout << other_side + add_side << endl;
 
       // egoh abccba + hog
-      if(add_len < abs(remaining)){
-  	dp[word_i][forward_connection[word_j][i]][offset + abs(remaining) - add_len]
-  	  = max(dp[word_i][forward_connection[word_j][i]][offset + abs(remaining) - add_len],
-  		dp[word_i][word_j][offset + remaining] + add_len);
-      }
-
       // egoh abccba + hogefuga
-      else if(add_len >= abs(remaining)){
-  	dp[word_i][forward_connection[word_j][i]][offset + abs(remaining) - add_len]
-  	  = max(dp[word_i][forward_connection[word_j][i]][offset + abs(remaining) - add_len],
-  		dp[word_i][word_j][offset + remaining] + add_len);
+      if(dp[word_i][forward_connection[word_j][i]][offset + abs(remaining) - add_len]
+	 < dp[word_i][word_j][offset + remaining] + add_len){
+	que.push(State(word_i,forward_connection[word_j][i],offset + abs(remaining) - add_len,dp[word_i][word_j][offset + remaining] + add_len));
       }
     }
   }
@@ -157,11 +140,9 @@ int main(){
     for(int i = 0; i < words.size(); i++){
       if(is_palindrome(words[i])){
 	que.push(State(i,i,offset,words[i].size()));
-	dp[i][i][offset] = words[i].size();
       }
       else {
-	que.push(State(i,i,offset,words[i].size()));
-	dp[i][i][offset + words[i].size() / 2] = words[i].size();
+	que.push(State(i,i,offset + words[i].size(),0));
       }
     }
 
@@ -171,19 +152,18 @@ int main(){
       if(dp[s.word_i][s.word_i][s.remaining] >= s.cost){
 	continue;
       }
-
-      
+      dp[s.word_i][s.word_i][s.remaining] = s.cost;
+      connect(words,forward_connection,backward_connection,s.word_i,s.word_j,s.remaining,que);
     }
 
+
     int res = 0;
-    for(int remaining = 0; remaining <= 50; remaining++){
-      for(int word_i = 0; word_i < words.size(); word_i++){
-	for(int word_j = 0; word_j < words.size(); word_j++){
-	  res = max(res,connect(words,forward_connection,backward_connection,word_i,word_j,remaining));	  
-	}
+    for(int word_i = 0; word_i < num_of_words; word_i++){
+      for(int word_j = 0; word_j < num_of_words; word_j++){
+	res = max(res,dp[word_i][word_j][offset]);
       }
     }
 
-    printf("%d\n",res >= INF ? -1 : res);
+    printf("%d\n",res < INF ? res : -1);
   }
 }
