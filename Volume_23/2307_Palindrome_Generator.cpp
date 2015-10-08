@@ -77,13 +77,12 @@ int connect(const vector<string>& words,
       string add_side = rear.substr(rear.size() - add_len,add_len);
 
       if(!is_palindrome(add_side + other_side)) continue;
-      cout << add_side + other_side << endl;
 
       // goh + abccba hoge
       // agufegoh + abccba hoge
       if(dp[backward_connection[word_i][i]][word_j][offset + remaining - add_len]
 	 < dp[word_i][word_j][offset + remaining] + add_len){
-	que.push(State(backward_connection[word_i][i],word_j,offset + remaining - add_len,dp[word_i][word_j][offset + remaining] + add_len));
+	que.push(State(backward_connection[word_i][i],word_j,offset + remaining - add_len,dp[word_i][word_j][offset + remaining] + add_len * 2));
       }
     }
   }
@@ -101,13 +100,12 @@ int connect(const vector<string>& words,
       string other_side = rear.substr(rear.size() - abs(remaining),add_len);
 
       if(!is_palindrome(other_side + add_side)) continue;
-      cout << other_side + add_side << endl;
 
-      // egoh abccba + hog
-      // egoh abccba + hogefuga
-      if(dp[word_i][forward_connection[word_j][i]][offset + abs(remaining) - add_len]
+      // egoh abccba + hog (rem:-4 add:3 -> rem:-1)
+      // egoh abccba + hogefuga (rem:-4 add 8 -> rem:4)
+      if(dp[word_i][forward_connection[word_j][i]][offset + remaining + add_len]
 	 < dp[word_i][word_j][offset + remaining] + add_len){
-	que.push(State(word_i,forward_connection[word_j][i],offset + abs(remaining) - add_len,dp[word_i][word_j][offset + remaining] + add_len));
+	que.push(State(word_i,forward_connection[word_j][i],offset + remaining + add_len,dp[word_i][word_j][offset + remaining] + add_len * 2));
       }
     }
   }
@@ -155,7 +153,6 @@ int main(){
       dp[s.word_i][s.word_i][s.remaining] = s.cost;
       connect(words,forward_connection,backward_connection,s.word_i,s.word_j,s.remaining,que);
     }
-
 
     int res = 0;
     for(int word_i = 0; word_i < num_of_words; word_i++){
