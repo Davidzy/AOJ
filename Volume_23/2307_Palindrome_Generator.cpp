@@ -48,8 +48,6 @@ int dp[101][101][51];
 const static int offset = 25;
 
 bool is_palindrome(const string& str){
-  if(str.size() <= 0) return false;
-
   for(int i = 0; i < str.size() / 2; i++){
     if(str[i] != str[str.size() - i - 1]){
       return false;
