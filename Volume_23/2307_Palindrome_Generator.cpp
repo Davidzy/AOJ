@@ -66,7 +66,7 @@ int connect(const vector<string>& words,
   remaining -= offset;
 
   // add to left side
-  if(remaining > 0){
+  if(remaining >= 0){
     for(int i = 0; i < backward_connection[word_i].size(); i++){
       string front = words[word_j];
       string rear = words[backward_connection[word_i][i]];
@@ -84,13 +84,13 @@ int connect(const vector<string>& words,
 	que.push(State(backward_connection[word_i][i],
 		       word_j,
 		       offset + remaining - rear.size(),
-		       min(INF,cost + (int)front.size())));
+		       min(INF,cost + (int)rear.size())));
       }
     }
   }
 
   // add to right side
-  else {
+  if(remaining <= 0){
     for(int i = 0; i < forward_connection[word_j].size(); i++){
       string front = words[forward_connection[word_j][i]];
       string rear = words[word_i];
