@@ -2,4 +2,5 @@
 *.input
 *.out
 *.txt
+*.class
 tmp
