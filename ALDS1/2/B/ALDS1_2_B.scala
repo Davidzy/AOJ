@@ -1,3 +1,4 @@
+import scala.io.StdIn
 
 object Main {
   def SelectionSort(A: Array[Int]):(Int,Array[Int]) = {
@@ -25,8 +26,11 @@ object Main {
 
 
   def main(args: Array[String]){
-    val N = readLine().map(_.toInt)
-    val input = readLine().split(" ").map(_.toInt).toArray
+    val N = StdIn.readInt()
+    val input = StdIn.readLine().split(" ").map(_.toInt).toArray
+
+    assert(input.length == N, "input length must equal to N")
+
     val result = SelectionSort(input)
     println(result._2.mkString(" "))
     println(result._1)
