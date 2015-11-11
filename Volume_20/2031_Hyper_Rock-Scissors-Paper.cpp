@@ -47,7 +47,19 @@ int main(){
   dict["Dragon"] = 11;
   dict["Devil"] = 12;
   dict["Lightning"] = 13;
-  dict["Gun"] = 14;  
+  dict["Gun"] = 14;
+
+  map<int,bool> canWin;
+  for(int hand_i = 0; hand_i < 15; hand_i++){
+    for(int hand_j = 0; hand_j < 15; hand_j++){
+      canWin[hand_i * 15 + hand_j] = false;
+      for(int offset = 1; offset <= 7; offset++){
+	if(hand_j == (hand_i + offset) % 15){
+	  canWin[hand_i * 15 + hand_j] = true;
+	}
+      }
+    }
+  }
 
   while(~scanf("%d",&num_of_players)){
     if(num_of_players == 0){
@@ -61,25 +73,27 @@ int main(){
     }
 
     bool lose[1001] = {};
+    bool win[1001] = {};
     for(int player_i = 0; player_i < num_of_players; player_i++){
-      for(int player_j = 0; player_j < num_of_players; player_j++){
-	if(player_i == player_j) continue;
-	
-	for(int offset = 1; offset <= 7; offset++){
-	  if(dict[players[player_j]] == (dict[players[player_i]] + offset) % 15){
-	    lose[player_j] = true;
-	  }
+      for(int player_j = player_i + 1; player_j < num_of_players; player_j++){
+	if(canWin[dict[players[player_i]] * 15 + dict[players[player_j]]]){
+	  lose[player_j] = true;
+	  win[player_i] = true;
+	}
+	if(canWin[dict[players[player_j]] * 15 + dict[players[player_i]]]){
+	  lose[player_i] = true;
+	  win[player_j] = true;
 	}
       }
     }
 
     string res = "Draw";
     for(int player_i = 0; player_i < num_of_players; player_i++){
-      if(!lose[player_i]){
+      if(!lose[player_i] && win[player_i]){
 	res = players[player_i];
 	break;
       }
     }
-    cout << res << endl;
+    printf("%s\n",res.c_str());
   }
 }
