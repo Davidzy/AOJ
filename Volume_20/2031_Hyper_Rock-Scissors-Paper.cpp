@@ -72,26 +72,26 @@ int main(){
       players.push_back(hand);
     }
 
-    bool lose[1001] = {};
-    bool win[1001] = {};
+    map<string,bool> lose;
+    map<string,bool> win;
+
+    set<string> hands;
     for(int player_i = 0; player_i < num_of_players; player_i++){
-      for(int player_j = player_i + 1; player_j < num_of_players; player_j++){
-	if(canWin[dict[players[player_i]] * 15 + dict[players[player_j]]]){
-	  lose[player_j] = true;
-	  win[player_i] = true;
-	}
-	if(canWin[dict[players[player_j]] * 15 + dict[players[player_i]]]){
-	  lose[player_i] = true;
-	  win[player_j] = true;
+      hands.insert(players[player_i]);
+    }
+    for(set<string>::iterator ally_it = hands.begin(); ally_it != hands.end(); ally_it++){
+      for(set<string>::iterator foe_it = hands.begin(); foe_it != hands.end(); foe_it++){
+	if(canWin[dict[*ally_it] * 15 + dict[*foe_it]]){
+	  win[*ally_it] = true;
+	  lose[*foe_it] = true;
 	}
       }
     }
 
     string res = "Draw";
-    for(int player_i = 0; player_i < num_of_players; player_i++){
-      if(!lose[player_i] && win[player_i]){
-	res = players[player_i];
-	break;
+    for(set<string>::iterator ally_it = hands.begin(); ally_it != hands.end(); ally_it++){
+      if(win[*ally_it] && !lose[*ally_it]){
+	res = *ally_it;
       }
     }
     printf("%s\n",res.c_str());
