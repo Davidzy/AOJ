@@ -1,43 +1,97 @@
-import scala.util.parsing.combinator._
 import scala.io.StdIn
 
-class Calculator extends RegexParsers {
-  def expr: Parser[BigInt] = factor~rep("+"~factor | "-"~factor | "*"~factor) ^^ {
-    case factor ~ list => list.foldLeft(factor) {
-      case(x, "+" ~ y) => BigInt(x.toString) + BigInt(y.toString)
-      case(x, "-" ~ y) => BigInt(x.toString) - BigInt(y.toString)
-      case(x, "*" ~ y) => BigInt(x.toString) * BigInt(y.toString)
+object Main {
+  def isInvalid(R1: BigInt):Boolean = {
+    if(R1 < BigInt(0) || R1 >= BigInt(10000)){
+      true
+    }
+    false
+  }
+
+  def printResult(R1: BigInt) {
+    if(R1 < BigInt(0) || R1 >= BigInt(10000)){
+      println("E")
+    }
+    else{
+      println(R1)
     }
   }
-
-  def factor: Parser[BigInt] = """\d+""".r ^^ { BigInt(_) } | expr
-
-  def apply(input: String):BigInt = parseAll(expr, input) match {
-    case Success(result, _) => result
-    case failure : NoSuccess => scala.sys.error(failure.msg)
-  }
-}
-
-object Main extends Calculator {
   def read(){
     StdIn.readLine() match {
       case line: String => {
-        val result = this(line.slice(0,line.length - 1))
-        if(result.toString.length > 100000){
-          println("E")
-        }
-        else{
-          if(0 <= result.toInt && result.toInt < 10000){
-            println(result)
+        val digit = """(\d+)""".r
+        var R1 = BigInt(0)
+        var R2 = BigInt(0)
+        var R3 = "+"
+        val tokens = line.split("").toArray
+        for(i <- 0 to tokens.length - 1){
+          val x = tokens(i).toString
+          x match {
+            case digit(x) => {
+              R2 = BigInt("10") * R2 + BigInt(x)
+            }
+            case "+"|"-"|"*" => {
+              R3 match {
+                case "+" => {
+                  R1 = R1 + R2
+                  R2 = BigInt("0")
+                  if(isInvalid(R1)){
+                    println("E")
+                    read()
+                  }
+                }
+                case "-" => {
+                  R1 = R1 - R2
+                  R2 = BigInt("0")
+                  if(isInvalid(R1)){
+                    println("E")
+                    read()
+                  }
+                }
+                case "*" => {
+                  R1 = R1 * R2
+                  R2 = BigInt("0")
+                  if(isInvalid(R1)){
+                    println("E")
+                    read()
+                  }
+                }
+              }
+              R3 = x
+            }
+            case "=" => {
+              R3 match {
+                case "+" => {
+                  R1 = R1 + R2
+                  R2 = BigInt("0")
+                  printResult(R1)
+                }
+                case "-" => {
+                  R1 = R1 - R2
+                  R2 = BigInt("0")
+                  printResult(R1)
+                }
+                case "*" => {
+                  R1 = R1 * R2
+                  R2 = BigInt("0")
+                  printResult(R1)
+                }
+                case _ => {
+                  sys.exit()
+                }
+              }
+            }
+            case _ => {
+              sys.exit()
+            }
           }
-          else{
-            println("E")
-          }
         }
-        read()
       }
-      case _ => return
+      case _ => {
+        return
+      }
     }
+    read()
   }
   def main(args: Array[String]){
     read()
