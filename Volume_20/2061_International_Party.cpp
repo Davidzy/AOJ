@@ -100,26 +100,45 @@ int main(){
     }
 
     int res = 0;
-    for(int S = 0; S < (1<<num_of_languages); S++){
-      if(__builtin_popcount(S) >= 5) continue;
-      UnionFindTree uft(30);
-      for(int student_i = 0; student_i < num_of_students; student_i++){
-	for(int student_j = student_i + 1; student_j < num_of_students; student_j++){
-	  if(students[student_i] & students[student_j] & S){
-	    uft.unite(student_i,student_j);
-	  }
-	}
+
+
+    for(int used = 1; used <= 5; used++){
+      vector<int> languages;
+      for(int i = 0; i < min(used,num_of_languages); i++){
+	languages.push_back(1);
+      }
+      for(int i = 0; i < num_of_languages - used; i++){
+	languages.push_back(0);
       }
       
-      set<int> parents;
-      for(int student_i = 0; student_i < num_of_students; student_i++){
-	parents.insert(uft.find(student_i));
-      }
-      if(parents.size() == 1){
-	res = S;
-	break;
-      }
+      sort(languages.begin(),languages.end());
+      do {
+	int S = 0;
+	for(int i = 0; i < languages.size(); i++){
+	  if(languages[i] == 1){
+	    S |= (1<<i);
+	  }
+	}
+	UnionFindTree uft(30);
+	for(int student_i = 0; student_i < num_of_students; student_i++){
+	  for(int student_j = student_i + 1; student_j < num_of_students; student_j++){
+	    if(students[student_i] & students[student_j] & S){
+	      uft.unite(student_i,student_j);
+	    }
+	  }
+	}
+	
+	set<int> parents;
+	for(int student_i = 0; student_i < num_of_students; student_i++){
+	  parents.insert(uft.find(student_i));
+	}
+	if(parents.size() == 1){
+	  res = S;
+	  goto found;
+	}
+      } while(next_permutation(languages.begin(),languages.end()));
     }
+  found:;
 
     if(res != 0){
       cout << __builtin_popcount(res) << endl;
