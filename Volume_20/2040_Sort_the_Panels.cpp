@@ -77,29 +77,32 @@ int main(){
     while(!que.empty()){
       State s = que.top();
       que.pop();
-      int from = s.machine_pos;
-      for(int to = 0; to < num_of_panels; to++){
-	if(to == from) continue;
-	int from_bit = (s.panel >> from) & 1;
-	int to_bit = (s.panel >> to) & 1;
-	
-	int next_panel = s.panel;
-	if(to_bit == 1){
-	  next_panel = next_panel | (1 << from);
+      for(int from = 0; from < num_of_panels; from++){
+	for(int to = 0; to < num_of_panels; to++){
+	  if(from == to) continue;
+
+	  int from_bit = (s.panel >> from) & 1;
+	  int to_bit = (s.panel >> to) & 1;
+	  
+	  int next_panel = s.panel;
+	  if(to_bit == 1){
+	    next_panel = next_panel | (1 << from);
+	  }
+	  else {
+	    next_panel = next_panel & (((1<<num_of_panels) - 1) ^ (1 << from));
+	  }
+	  
+	  if(from_bit == 1){
+	    next_panel = next_panel | (1 << to);
+	  }
+	  else {
+	    next_panel = next_panel & (((1<<num_of_panels) - 1) ^ (1 << to));
+	  }
+	  
+	  if(dp[to][next_panel] <= s.cost + abs(to - from) + abs(from - s.machine_pos)) continue;
+	  dp[to][next_panel] = s.cost + abs(to - from) + abs(from - s.machine_pos);
+	  que.push(State(next_panel,s.cost + abs(to - from) + abs(from - s.machine_pos),to));
 	}
-	else {
-	  next_panel = next_panel & (((1<<num_of_panels) - 1) ^ (1 << from));
-	}
-	if(from_bit == 1){
-	  next_panel = next_panel | (1 << to);
-	}
-	else {
-	  next_panel = next_panel & (((1<<num_of_panels) - 1) ^ (1 << to));
-	}
-	
-	if(dp[to][next_panel] <= s.cost + abs(to - from)) continue;
-	dp[to][next_panel] = s.cost + abs(to - from);
-	que.push(State(next_panel,s.cost + abs(to - from),to));
       }
     }
 
