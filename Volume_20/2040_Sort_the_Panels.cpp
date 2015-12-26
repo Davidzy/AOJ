@@ -77,6 +77,9 @@ int main(){
     while(!que.empty()){
       State s = que.top();
       que.pop();
+
+      if(s.panel == panels[1]) goto found;
+
       for(int from = 0; from < num_of_panels; from++){
 	for(int to = 0; to < num_of_panels; to++){
 	  if(from == to) continue;
@@ -105,7 +108,7 @@ int main(){
 	}
       }
     }
-
+  found:;
     int res = INF;
     for(int pos = 0; pos < num_of_panels; pos++){
       res = min(res,dp[pos][panels[1]]);
