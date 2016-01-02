@@ -34,7 +34,6 @@ public:
   int _to;
   int _capacity;
   int _reverse;
-  int _id;
   Edge(int to,int capacity,int reverse) :
     _to(to), _capacity(capacity), _reverse(reverse) {}
 };
@@ -45,7 +44,7 @@ private:
   bool *_used;
   vector<Edge>* _edges;
   void fill_used(){
-    fill(_used,_used + (_n+1) ,false);
+    fill(_used,_used + _n ,false);
   }
 public:
   ~FordFulkerson(){
@@ -55,13 +54,13 @@ public:
 
   FordFulkerson(int n){
     _n = n;
-    _edges = new vector<Edge>[n+1];
-    _used = new bool[n+1]();
+    _edges = new vector<Edge>[n];
+    _used = new bool[n]();
   }
 
   void add_edge(int from,int to,int capacity){
     _edges[from].push_back(Edge(to,capacity,_edges[to].size()));
-    _edges[to].push_back(Edge(from,capacity,_edges[from].size()-1));
+    _edges[to].push_back(Edge(from,0,_edges[from].size()-1));
   }
 
   int dfs(int current,int sink,int flow){
@@ -135,12 +134,13 @@ int main(){
     for(int dome_i = 0; dome_i < num_of_domes; dome_i++){
       int capacity;
       scanf("%d",&capacity);
-      ford_fulkerson.add_edge(num_of_domes * 2 + 1,dome_i,capacity);
+      ford_fulkerson.add_edge(num_of_domes + dome_i,num_of_domes * 2 + 1,capacity);
     }
+
     for(int from = 0; from < num_of_domes; from++){
       for(int to = 0; to < num_of_domes; to++){
 	if(dp[from][to] < day_limit){
-	  ford_fulkerson.add_edge(from,to,INF);
+	  ford_fulkerson.add_edge(from,num_of_domes + to,INF);
 	}
       }
     }
