@@ -40,32 +40,26 @@ int main(){
       //[0,split_i),[split_i,cypher.size())
       string A = cypher.substr(0, split_i - 0);
       string B = cypher.substr(split_i, cypher.size() - split_i);
-      queue<char> que;
-      if(A.size() < B.size()){
-	swap(A,B);
-      }
-      
-      // A is longer than B
-      for(int A_i = 0; A_i < A.size(); A_i++){
-	que.push(A[A_i]);
-      }
 
-      int B_i = 0;
-      bool isok = false;
-      while(!que.empty()){
-	char current_char = que.front();
-	que.pop();
-	if(B[B_i] == current_char){
-	  B_i++;
-	}
-	if(B_i >= B.size()){
-	  isok = true;
-	  break;
+      string dp_str[301][301];
+      dp_str[0][0] = "";
+      for(int y = 0; y < A.size(); y++){
+	for(int x = 0; x < B.size(); x++){
+	  if(A[y] == B[x]){
+	    dp_str[y+1][x+1] = dp_str[y][x] + A[y];
+	  }
+	  else {
+	    if(dp_str[y][x+1].size() > dp_str[y+1][x].size()){
+	      dp_str[y+1][x+1] = dp_str[y][x+1];
+	    }
+	    else{
+	      dp_str[y+1][x+1] = dp_str[y+1][x];
+	    }
+	  }
 	}
       }
-
-      if(isok && res.size() < B.size()){
-	res = B;
+      if(res.size() < dp_str[A.size()][B.size()].size()){
+	res = dp_str[A.size()][B.size()];
       }
     }
     printf("%s\n",res.c_str());
