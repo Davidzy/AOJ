@@ -36,6 +36,8 @@ int main(){
     if(cypher == "#END") break;
 
     string res = "";
+    string dp_str[301][301];
+
     for(int split_i = 1; split_i < cypher.size(); split_i++){
       //[0,split_i),[split_i,cypher.size())
       if(res.size() >= min(split_i,(int)cypher.size() - split_i)){
@@ -44,7 +46,6 @@ int main(){
       string A = cypher.substr(0, split_i - 0);
       string B = cypher.substr(split_i, cypher.size() - split_i);
 
-      string dp_str[301][301];
       dp_str[0][0] = "";
       for(int y = 0; y < A.size(); y++){
 	for(int x = 0; x < B.size(); x++){
